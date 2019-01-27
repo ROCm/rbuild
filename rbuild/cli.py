@@ -56,6 +56,7 @@ def cli():
 @click.option('-D', '--define', multiple=True, help="Extra cmake variables to add to the toolchain")
 def prepare(deps_dir, source_dir, toolchain, cxx, define):
     cg = cget(deps_dir)
+    cg('clean', '-y')
     cg('init', *make_args(cxx=cxx, toolchain=toolchain, define=define))
     for dep in ignore_deps:
         cg('ignore', dep)
