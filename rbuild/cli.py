@@ -24,7 +24,7 @@ def make_args(**kwargs):
     for key, value in kwargs.items():
         if value:
             name = '--' + key
-            for arg in value if isinstance(value, list) else [value]:
+            for arg in value if isinstance(value, list) or isinstance(value, tuple) else [value]:
                 args = args + [name, arg]
     return args
 
@@ -33,6 +33,7 @@ def make_defines(defines):
 
 def cget(prefix):
     def f(*args, **kwargs):
+        print(args)
         subprocess.check_call(['cget', '-p', prefix] + list(args), **kwargs)
     return f
 

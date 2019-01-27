@@ -42,3 +42,17 @@ def test_simple(d):
     src = get_path('simple')
     rb('prepare', '-d', deps, cwd=src)
     rb('package', '-B', build, '-d', deps, cwd=src)
+
+def test_simple_init_flag(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('prepare', '-d', deps, '-DCMAKE_BUILD_TYPE=Debug', cwd=src)
+    rb('package', '-B', build, '-d', deps, cwd=src)
+
+def test_simple_build_flag(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('prepare', '-d', deps, cwd=src)
+    rb('package', '-B', build, '-d', deps, '-DCMAKE_BUILD_TYPE=Debug', cwd=src)
