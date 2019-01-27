@@ -33,19 +33,19 @@ def make_defines(defines):
 
 def cget(prefix):
     def f(*args, **kwargs):
-        subprocess.check_call(['cget', '-p', prefix] + args, **kwargs)
+        subprocess.check_call(['cget', '-p', prefix] + list(args), **kwargs)
     return f
 
 def cmake(*args, **kwargs):
-    subprocess.check_call(['cmake'] + args, **kwargs)
+    subprocess.check_call(['cmake'] + list(args), **kwargs)
 
 def make(target, build='.'):
-    args = make_args(build=build, config='Release', target=target) + ['--' + '-j' + str(multiprocessing.cpu_count())]
-    cmake(args)
+    args = ['--build', build, '--config', 'Release', '--target', target, '--', '-j' + str(multiprocessing.cpu_count())]
+    cmake(*args)
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.version_option(version=__version__, prog_name='rbuild')
-def cli(branch, url, path):
+def cli():
     pass
 
 @cli.command()

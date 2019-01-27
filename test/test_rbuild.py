@@ -15,7 +15,7 @@ __test_dir__ = os.path.dirname(os.path.realpath(__file__))
 __rbuild_exe__ = which('rbuild')
 
 def rb(*args, **kwargs):
-    subprocess.check_call([__rbuild_exe__] + args, **kwargs)
+    subprocess.check_call([__rbuild_exe__] + list(args), **kwargs)
 
 def get_path(*ps):
     return os.path.join(__test_dir__, *ps)
@@ -28,11 +28,6 @@ class DirForTests:
         p = os.path.join(self.tmp_dir, *args)
         rbuild.mkdir(p)
         return DirForTests(p)
-
-    def cmd(self, *args, **kwargs):
-        print(args)
-        if 'cwd' not in kwargs: kwargs['cwd'] = self.tmp_dir
-        subprocess.check_call(*args, **kwargs)
 
     def get_path(self, *ps):
         return os.path.join(self.tmp_dir, *ps)
