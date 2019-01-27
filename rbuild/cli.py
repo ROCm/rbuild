@@ -33,7 +33,6 @@ def make_defines(defines):
 
 def cget(prefix):
     def f(*args, **kwargs):
-        print(args)
         subprocess.check_call(['cget', '-p', prefix] + list(args), **kwargs)
     return f
 
