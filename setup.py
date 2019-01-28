@@ -10,8 +10,12 @@ def get_requires(filename):
     requirements = []
     with open(filename) as req_file:
         for line in req_file.read().splitlines():
-            if not line.strip().startswith("#"):
-                requirements.append(line)
+            s = line.strip()
+            if not s.startswith("#"):
+                if ':' in s:
+                    requirements.append(s[s.find('#egg=')+5:])
+                else:
+                    requirements.append(s)
     return requirements
 
 project_requirements = get_requires("requirements.txt")
