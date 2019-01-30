@@ -1,4 +1,4 @@
-import rbuild, os, subprocess, pytest
+import rbuild, os, subprocess, pytest, shutil
 
 def which(program):
     def is_exe(fpath):
@@ -36,23 +36,42 @@ class DirForTests:
 def d(tmpdir):
     return DirForTests(tmpdir.strpath)
 
-def test_simple(d):
+def test_prepare_package(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
     src = get_path('simple')
     rb('prepare', '-d', deps, cwd=src)
     rb('package', '-B', build, '-d', deps, cwd=src)
 
-def test_simple_init_flag(d):
+def test_prepare_package_init_flag(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
     src = get_path('simple')
     rb('prepare', '-d', deps, '-DCMAKE_BUILD_TYPE=Debug', cwd=src)
     rb('package', '-B', build, '-d', deps, cwd=src)
 
-def test_simple_build_flag(d):
+def test_prepare_package_build_flag(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
     src = get_path('simple')
     rb('prepare', '-d', deps, cwd=src)
     rb('package', '-B', build, '-d', deps, '-DCMAKE_BUILD_TYPE=Debug', cwd=src)
+
+def test_package(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('package', '-B', build, '-d', deps, cwd=src)
+
+def test_package_flag(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('package', '-B', build, '-d', deps, '-DCMAKE_BUILD_TYPE=Debug', cwd=src)
+
+
+def test_optional_build(d):
+    deps = d.get_path('deps')
+    src = d.get_path('src')
+    shutil.copytree(get_path('simple'), src)
+    rb('package', '-d', deps, cwd=src)

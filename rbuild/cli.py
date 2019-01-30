@@ -82,7 +82,7 @@ def compute_hash(source_dir, dist=False):
 
 def install_deps(deps_dir, source_dir, init_args, dist=True):
     cg = cget(deps_dir)
-    h = compute_hash(source_dir)
+    h = compute_hash(source_dir, dist=dist)
     hash_file = os.path.join(deps_dir, 'hash')
     if first(read_from(hash_file), '').strip() == h:
         return
@@ -106,17 +106,23 @@ def cli():
 @click.option('--cxx', required=False, help="Set c++ compiler")
 @click.option('-D', '--define', multiple=True, help="Extra cmake variables to add to the toolchain")
 def prepare(deps_dir, source_dir, toolchain, cxx, define):
-    install_deps(deps_dir, source_dir or os.getcwd(), make_args(cxx=cxx, toolchain=toolchain, define=define), dist=True)
+    src = source_dir or os.getcwd()
+    install_deps(deps_dir, src, make_args(cxx=cxx, toolchain=toolchain, define=define), dist=True)
 
 @cli.command()
 @click.option('-d', '--deps-dir', required=True, help="Directory for the third-party dependencies")
 @click.option('-S', '--source-dir', required=False, help="Directory of the source code")
-@click.option('-B', '--build-dir', required=True, help="Directory for the build")
+@click.option('-B', '--build-dir', required=False, help="Directory for the build")
+@click.option('-t', '--toolchain', required=False, help="Set cmake toolchain file to use")
+@click.option('--cxx', required=False, help="Set c++ compiler")
 @click.option('-D', '--define', multiple=True, help="Extra cmake variables")
-def package(deps_dir, source_dir, build_dir, define):
-    toolchain = os.path.join(deps_dir, 'cget', 'cget.cmake')
+def package(deps_dir, source_dir, build_dir, toolchain, cxx, define):
     src = source_dir or os.getcwd()
-    mkdir(build_dir)
-    cmake('-DCMAKE_TOOLCHAIN_FILE='+toolchain, src, *make_defines(define), cwd=build_dir)
-    make('package', build=build_dir)
+    build = build_dir or os.path.join(src, 'build')
+    install_deps(deps_dir, src, make_args(cxx=cxx, toolchain=toolchain), dist=True)
+    toolchain_file = os.path.join(deps_dir, 'cget', 'cget.cmake')
+    delete_dir(build)
+    mkdir(build)
+    cmake('-DCMAKE_TOOLCHAIN_FILE='+toolchain_file, src, *make_defines(define), cwd=build)
+    make('package', build=build)
 
