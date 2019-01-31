@@ -135,6 +135,14 @@ def build_command(require_deps=True):
         return w
     return wrap
 
+def dev_option(f):
+    @click.option('--dev', default=False, is_flag=True, help="Install all dependencies")
+    @functools.wraps(f)
+    def w(b, dev, *args, **kwargs):
+        b.dist = not dev
+        f(b, *args, **kwargs)
+    return w
+
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.version_option(version=__version__, prog_name='rbuild')
 def cli():
@@ -146,12 +154,14 @@ def cli():
 @click.option('-t', '--toolchain', required=False, help="Set cmake toolchain file to use")
 @click.option('--cxx', required=False, help="Set c++ compiler")
 @click.option('-D', '--define', multiple=True, help="Extra cmake variables to add to the toolchain")
-def prepare(deps_dir, source_dir, toolchain, cxx, define):
-    b = Builder(deps_dir=deps_dir, source_dir=source_dir, toolchain=toolchain, cxx=cxx, dist=True)
+@click.option('--dev', is_flag=True, help="Install all dependencies")
+def prepare(deps_dir, source_dir, toolchain, cxx, define, dev):
+    b = Builder(deps_dir=deps_dir, source_dir=source_dir, toolchain=toolchain, cxx=cxx, dist=not dev)
     b.prepare(define=define)
 
 @cli.command()
 @build_command()
+@dev_option
 def package(b):
     b.prepare()
     b.configure(clean=True)
@@ -159,10 +169,13 @@ def package(b):
 
 @cli.command()
 @build_command()
-def build(b):
+@dev_option
+@click.option('-t', '--target', multiple=True, help="Target to build")
+def build(b, target):
     b.prepare()
     b.configure(clean=True)
-    b.build('all')
+    for t in target or ['all']:
+        b.build(t)
 
 @cli.command()
 @build_command(require_deps=False)
