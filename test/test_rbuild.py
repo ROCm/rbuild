@@ -63,6 +63,13 @@ def test_package(d):
     src = get_path('simple')
     rb('package', '-B', build, '-d', deps, cwd=src)
 
+@pytest.mark.xfail(strict=True)
+def test_package_fail(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple_direct')
+    rb('package', '-B', build, '-d', deps, cwd=src)
+
 def test_package_flag(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
@@ -75,3 +82,28 @@ def test_optional_build(d):
     src = d.get_path('src')
     shutil.copytree(get_path('simple'), src)
     rb('package', '-d', deps, cwd=src)
+
+def test_build(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('build', '-B', build, '-d', deps, cwd=src)
+
+@pytest.mark.xfail(strict=True)
+def test_build_fail(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple_direct')
+    rb('build', '-B', build, '-d', deps, cwd=src)
+
+def test_develop(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('develop', '-B', build, '-d', deps, cwd=src)
+
+def test_develop2(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple_direct')
+    rb('develop', '-B', build, '-d', deps, cwd=src)

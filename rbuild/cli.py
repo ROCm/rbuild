@@ -1,4 +1,4 @@
-import subprocess, click, os, shutil, multiprocessing, hashlib, itertools
+import subprocess, click, os, shutil, multiprocessing, hashlib, itertools, functools
 
 from rbuild import __version__
 
@@ -80,19 +80,60 @@ def compute_hash(source_dir, dist=False):
         read_reqs(os.path.join(source_dir, 'requirements.txt')), 
         read_reqs(os.path.join(source_dir, 'dev-requirements.txt'))))
 
-def install_deps(deps_dir, source_dir, init_args, dist=True):
+def install_deps(deps_dir, source_dir, init_args, dist=True, init=True):
     cg = cget(deps_dir)
+    exist = os.path.exists(deps_dir)
     h = compute_hash(source_dir, dist=dist)
     hash_file = os.path.join(deps_dir, 'hash')
     if first(read_from(hash_file), '').strip() == h:
         return
     cg('clean', '-y')
-    cg('init', *init_args)
+    if init or not exist:
+        cg('init', *init_args)
     if dist:
         for dep in ignore_deps:
             cg('ignore', dep)
     cg('install', cwd=source_dir)
     write_to(hash_file, [h])
+
+class Builder:
+    def __init__(self, deps_dir, source_dir=None, build_dir=None, toolchain=None, cxx=None, define=None, dist=True):
+        self.deps_dir = deps_dir or os.path.join(os.getcwd(), 'deps')
+        self.source_dir = source_dir or os.getcwd()
+        self.build_dir = build_dir or os.path.join(self.source_dir, 'build')
+        self.has_build = True if build_dir else False
+        self.toolchain = toolchain
+        self.cxx = cxx
+        self.define = define or []
+        self.dist = dist
+
+    def prepare(self, define=None, init=True):
+        install_deps(self.deps_dir, self.source_dir, make_args(cxx=self.cxx, toolchain=self.toolchain, define=define), dist=self.dist, init=init)
+
+    def configure(self, clean=True):
+        toolchain_file = os.path.join(self.deps_dir, 'cget', 'cget.cmake')
+        if clean: delete_dir(self.build_dir)
+        mkdir(self.build_dir)
+        cmake('-DCMAKE_TOOLCHAIN_FILE='+toolchain_file, self.source_dir, *make_defines(self.define), cwd=self.build_dir)
+
+    def build(self, target=None):
+        make(target or None, build=self.build_dir)
+
+
+def build_command(require_deps=True):
+    def wrap(f):
+        @click.option('-d', '--deps-dir', required=require_deps, help="Directory for the third-party dependencies")
+        @click.option('-S', '--source-dir', required=False, help="Directory of the source code")
+        @click.option('-B', '--build-dir', required=False, help="Directory for the build")
+        @click.option('-t', '--toolchain', required=False, help="Set cmake toolchain file to use")
+        @click.option('--cxx', required=False, help="Set c++ compiler")
+        @click.option('-D', '--define', multiple=True, help="Extra cmake variables")
+        @functools.wraps(f)
+        def w(deps_dir, source_dir, build_dir, toolchain, cxx, define, *args, **kwargs):
+            b = Builder(deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, define=define)
+            f(b, *args, **kwargs)
+        return w
+    return wrap
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.version_option(version=__version__, prog_name='rbuild')
@@ -106,23 +147,28 @@ def cli():
 @click.option('--cxx', required=False, help="Set c++ compiler")
 @click.option('-D', '--define', multiple=True, help="Extra cmake variables to add to the toolchain")
 def prepare(deps_dir, source_dir, toolchain, cxx, define):
-    src = source_dir or os.getcwd()
-    install_deps(deps_dir, src, make_args(cxx=cxx, toolchain=toolchain, define=define), dist=True)
+    b = Builder(deps_dir=deps_dir, source_dir=source_dir, toolchain=toolchain, cxx=cxx, dist=True)
+    b.prepare(define=define)
 
 @cli.command()
-@click.option('-d', '--deps-dir', required=True, help="Directory for the third-party dependencies")
-@click.option('-S', '--source-dir', required=False, help="Directory of the source code")
-@click.option('-B', '--build-dir', required=False, help="Directory for the build")
-@click.option('-t', '--toolchain', required=False, help="Set cmake toolchain file to use")
-@click.option('--cxx', required=False, help="Set c++ compiler")
-@click.option('-D', '--define', multiple=True, help="Extra cmake variables")
-def package(deps_dir, source_dir, build_dir, toolchain, cxx, define):
-    src = source_dir or os.getcwd()
-    build = build_dir or os.path.join(src, 'build')
-    install_deps(deps_dir, src, make_args(cxx=cxx, toolchain=toolchain), dist=True)
-    toolchain_file = os.path.join(deps_dir, 'cget', 'cget.cmake')
-    delete_dir(build)
-    mkdir(build)
-    cmake('-DCMAKE_TOOLCHAIN_FILE='+toolchain_file, src, *make_defines(define), cwd=build)
-    make('package', build=build)
+@build_command()
+def package(b):
+    b.prepare()
+    b.configure(clean=True)
+    b.build('package')
+
+@cli.command()
+@build_command()
+def build(b):
+    b.prepare()
+    b.configure(clean=True)
+    b.build('all')
+
+@cli.command()
+@build_command(require_deps=False)
+def develop(b):
+    b.dist = False
+    b.prepare(init=False)
+    if b.has_build:
+        b.configure(clean=False)
 
