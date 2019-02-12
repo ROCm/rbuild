@@ -72,7 +72,7 @@ def read_reqs(filename, dist=False):
 def compute_md5(*xs):
     m = hashlib.md5()
     for x in xs:
-        m.update(x)
+        m.update(x.encode('utf-8'))
     return m.hexdigest()
 
 def compute_hash(source_dir, dist=False):
