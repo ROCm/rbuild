@@ -79,6 +79,13 @@ def test_prepare_package_build_flag(d):
     rb('prepare', '-d', deps, cwd=src)
     rb('package', '-B', build, '-d', deps, '-DCMAKE_BUILD_TYPE=Debug', cwd=src)
 
+def test_prepare_package_verbose(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('prepare', '-d', deps, '--verbose', cwd=src)
+    rb('package', '-B', build, '-d', deps, '--verbose', cwd=src)
+
 def test_package(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
@@ -110,6 +117,12 @@ def test_build(d):
     build = d.get_path('build')
     src = get_path('simple')
     rb('build', '-B', build, '-d', deps, cwd=src)
+
+def test_build_verbose(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('build', '-B', build, '-d', deps, '--verbose', cwd=src)
 
 @pytest.mark.xfail(strict=True)
 def test_build_fail(d):

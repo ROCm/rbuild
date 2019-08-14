@@ -43,11 +43,11 @@ class Install(InstallCommand):
 setup(
     name="rbuild",
     version=get_version("rbuild"),
-    url='https://github.com/pfultz2/rbuild',
+    url='https://github.com/RadeonOpenCompute/rbuild',
     license='boost',
     description='Rocm build',
     author='Paul Fultz II',
-    author_email='pfultz2@yahoo.com',
+    author_email='pfultz@amd.com',
     cmdclass={
         'install': Install,
     },

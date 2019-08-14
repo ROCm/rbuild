@@ -12,6 +12,11 @@ ignore_deps = [
     'ROCmSoftwarePlatform/rocBLAS'
 ]
 
+def cmd(args, verbose=True, **kwargs):
+    if verbose:
+        click.echo("rbuild command: " + ' '.join(args))
+    subprocess.check_call(args, **kwargs)
+
 def mkdir(p):
     if not os.path.exists(p): os.makedirs(p)
     return p
@@ -48,17 +53,22 @@ def make_args(**kwargs):
 def make_defines(defines):
     return ['-D'+x for x in defines]
 
-def cget(prefix):
+def cget(prefix, verbose=False):
     def f(*args, **kwargs):
-        subprocess.check_call(['cget', '-p', prefix] + list(args), **kwargs)
+        core = ['cget', '-p', prefix]
+        if verbose:
+            core.append('--verbose')
+        cmd(['cget', '-p', prefix] + list(args), verbose=verbose, **kwargs)
     return f
 
 def cmake(*args, **kwargs):
-    subprocess.check_call(['cmake'] + list(args), **kwargs)
+    cmd(['cmake'] + list(args), **kwargs)
 
-def make(target, build='.'):
+def make(target, build='.', verbose=False):
     args = ['--build', build, '--config', 'Release', '--target', target, '--', '-j' + str(multiprocessing.cpu_count())]
-    cmake(*args)
+    if verbose:
+        args.append('VERBOSE=1')
+    cmake(*args, verbose=verbose)
 
 def read_reqs(filename, dist=False):
     for line in read_from(filename):
@@ -80,8 +90,8 @@ def compute_hash(source_dir, dist=False):
         read_reqs(os.path.join(source_dir, 'requirements.txt')), 
         read_reqs(os.path.join(source_dir, 'dev-requirements.txt'))))
 
-def install_deps(deps_dir, source_dir, init_args, dist=True, init=True):
-    cg = cget(deps_dir)
+def install_deps(deps_dir, source_dir, init_args, dist=True, init=True, verbose=False):
+    cg = cget(deps_dir, verbose)
     exist = os.path.exists(deps_dir)
     h = compute_hash(source_dir, dist=dist)
     hash_file = os.path.join(deps_dir, 'hash')
@@ -97,7 +107,7 @@ def install_deps(deps_dir, source_dir, init_args, dist=True, init=True):
     write_to(hash_file, [h])
 
 class Builder:
-    def __init__(self, deps_dir, source_dir=None, build_dir=None, toolchain=None, cxx=None, define=None, dist=True):
+    def __init__(self, deps_dir, source_dir=None, build_dir=None, toolchain=None, cxx=None, define=None, dist=True, verbose=False):
         self.deps_dir = deps_dir or os.path.join(os.getcwd(), 'deps')
         self.source_dir = source_dir or os.getcwd()
         self.build_dir = build_dir or os.path.join(self.source_dir, 'build')
@@ -106,18 +116,19 @@ class Builder:
         self.cxx = cxx
         self.define = define or []
         self.dist = dist
+        self.verbose = verbose
 
     def prepare(self, define=None, init=True):
-        install_deps(self.deps_dir, self.source_dir, make_args(cxx=self.cxx, toolchain=self.toolchain, define=define), dist=self.dist, init=init)
+        install_deps(self.deps_dir, self.source_dir, make_args(cxx=self.cxx, toolchain=self.toolchain, define=define), dist=self.dist, init=init, verbose=self.verbose)
 
     def configure(self, clean=True):
         toolchain_file = os.path.join(self.deps_dir, 'cget', 'cget.cmake')
         if clean: delete_dir(self.build_dir)
         mkdir(self.build_dir)
-        cmake('-DCMAKE_TOOLCHAIN_FILE='+toolchain_file, self.source_dir, *make_defines(self.define), cwd=self.build_dir)
+        cmake('-DCMAKE_TOOLCHAIN_FILE='+toolchain_file, self.source_dir, *make_defines(self.define), verbose=self.verbose, cwd=self.build_dir)
 
     def build(self, target=None):
-        make(target or None, build=self.build_dir)
+        make(target or None, build=self.build_dir, verbose=self.verbose)
 
 
 def build_command(require_deps=True):
@@ -128,9 +139,10 @@ def build_command(require_deps=True):
         @click.option('-t', '--toolchain', required=False, help="Set cmake toolchain file to use")
         @click.option('--cxx', required=False, help="Set c++ compiler")
         @click.option('-D', '--define', multiple=True, help="Extra cmake variables")
+        @click.option('--verbose', is_flag=True, required=False, help="Set verbosity mode on")
         @functools.wraps(f)
-        def w(deps_dir, source_dir, build_dir, toolchain, cxx, define, *args, **kwargs):
-            b = Builder(deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, define=define)
+        def w(deps_dir, source_dir, build_dir, toolchain, cxx, define, verbose, *args, **kwargs):
+            b = Builder(deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, define=define, verbose=verbose)
             f(b, *args, **kwargs)
         return w
     return wrap
@@ -155,8 +167,9 @@ def cli():
 @click.option('--cxx', required=False, help="Set c++ compiler")
 @click.option('-D', '--define', multiple=True, help="Extra cmake variables to add to the toolchain")
 @click.option('--dev', is_flag=True, help="Install all dependencies")
-def prepare(deps_dir, source_dir, toolchain, cxx, define, dev):
-    b = Builder(deps_dir=deps_dir, source_dir=source_dir, toolchain=toolchain, cxx=cxx, dist=not dev)
+@click.option('--verbose', is_flag=True, required=False, help="Set verbosity mode on")
+def prepare(deps_dir, source_dir, toolchain, cxx, define, dev, verbose):
+    b = Builder(deps_dir=deps_dir, source_dir=source_dir, toolchain=toolchain, cxx=cxx, dist=not dev, verbose=verbose)
     b.prepare(define=define)
 
 @cli.command()
