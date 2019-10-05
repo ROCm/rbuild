@@ -1,2 +1,2 @@
-https://github.com/pfultz2/cget/archive/57b3289000fcdb3b7e424c60a35ea09bc44d8538.tar.gz#egg=cget
+cget>=0.1.8
 click
