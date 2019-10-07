@@ -29,7 +29,7 @@ setup(
     author='Paul Fultz II',
     author_email='pfultz2@yahoo.com',
     packages=find_packages(),
-    install_requires=install_requires,
+    install_requires=project_requirements,
     include_package_data=True,
     entry_points={
         'console_scripts': [
