@@ -28,9 +28,6 @@ setup(
     description='Rocm build',
     author='Paul Fultz II',
     author_email='pfultz2@yahoo.com',
-    cmdclass={
-        'install': Install,
-    },
     packages=find_packages(),
     install_requires=install_requires,
     include_package_data=True,
