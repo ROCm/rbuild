@@ -1,2 +1,2 @@
 cget>=0.1.8
-click
+click>=6.6
