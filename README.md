@@ -5,7 +5,7 @@
 To install the latest version:
 
 ```
-pip install https://github.com/RadeonOpenCompute/rbuild/archive/master.tar.gz
+pip3 install https://github.com/RadeonOpenCompute/rbuild/archive/master.tar.gz
 ```
 
 ## Packages
