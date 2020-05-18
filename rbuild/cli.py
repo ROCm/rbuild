@@ -173,7 +173,7 @@ def package(b):
 @click.option('-t', '--target', multiple=True, help="Target to build")
 def build(b, target):
     b.prepare()
-    b.configure(clean=True)
+    b.configure(clean=False)
     for t in target or ['all']:
         b.build(t)
 
