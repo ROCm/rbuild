@@ -51,20 +51,6 @@ def test_prepare_package_fail(d):
     rb('prepare', '-d', deps, cwd=src)
     rb('package', '-B', build, '-d', deps, cwd=src)
 
-def test_prepare_package_dev(d):
-    deps = d.get_path('deps')
-    build = d.get_path('build')
-    src = get_path('simple')
-    rb('prepare', '-d', deps, '--dev', cwd=src)
-    rb('package', '-B', build, '-d', deps, cwd=src)
-
-def test_prepare_package_dev2(d):
-    deps = d.get_path('deps')
-    build = d.get_path('build')
-    src = get_path('simple_direct')
-    rb('prepare', '-d', deps, '--dev', cwd=src)
-    rb('package', '-B', build, '-d', deps, cwd=src)
-
 def test_prepare_package_init_flag(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
@@ -118,18 +104,6 @@ def test_build_fail(d):
     src = get_path('simple_direct')
     rb('build', '-B', build, '-d', deps, cwd=src)
 
-def test_build_dev(d):
-    deps = d.get_path('deps')
-    build = d.get_path('build')
-    src = get_path('simple')
-    rb('build', '-B', build, '-d', deps, '--dev', cwd=src)
-
-def test_build_dev2(d):
-    deps = d.get_path('deps')
-    build = d.get_path('build')
-    src = get_path('simple_direct')
-    rb('build', '-B', build, '-d', deps, '--dev', cwd=src)
-
 def test_build_target(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
@@ -142,14 +116,14 @@ def test_build_targets(d):
     src = get_path('simple')
     rb('build', '-B', build, '-d', deps, '-t', 'simple', '-t', 'package', cwd=src)
 
-def test_develop(d):
-    deps = d.get_path('deps')
-    build = d.get_path('build')
-    src = get_path('simple')
-    rb('develop', '-B', build, '-d', deps, cwd=src)
+# def test_develop(d):
+#     deps = d.get_path('deps')
+#     build = d.get_path('build')
+#     src = get_path('simple')
+#     rb('develop', '-B', build, '-d', deps, cwd=src)
 
-def test_develop2(d):
-    deps = d.get_path('deps')
-    build = d.get_path('build')
-    src = get_path('simple_direct')
-    rb('develop', '-B', build, '-d', deps, cwd=src)
+# def test_develop2(d):
+#     deps = d.get_path('deps')
+#     build = d.get_path('build')
+#     src = get_path('simple_direct')
+#     rb('develop', '-B', build, '-d', deps, cwd=src)

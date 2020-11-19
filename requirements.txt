@@ -1,2 +1,3 @@
 cget>=0.1.9
-click==6.6
+click==7.1.2
+configparser==4.0.2
