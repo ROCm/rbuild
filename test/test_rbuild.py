@@ -1,12 +1,14 @@
 import rbuild, os, subprocess, pytest, shutil
 
 def which(program):
+    exes = [program+x for x in ['', '.exe', '.bat']]
     def is_exe(fpath):
         return os.path.isfile(fpath)
     for path in os.environ["PATH"].split(os.pathsep):
-        exe_file = os.path.join(path, program)
-        if is_exe(exe_file):
-            return exe_file
+        for exe in exes:
+            exe_file = os.path.join(path, exe)
+            if is_exe(exe_file):
+                return exe_file
 
     return None
 
