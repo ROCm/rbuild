@@ -13,7 +13,6 @@ jobs:
   test:
     runs-on: ${{ matrix.platform }}
     strategy:
-      max-parallel: 4
       matrix:
         platform:
           - ubuntu-18.04
