@@ -144,8 +144,6 @@ def get_session_options(session, file=None):
         return to_dict(parser.items('default'))
     return to_dict(parser.items(session))
 
-def sanitize_cmake_args(args):
-    return [arg.replace(os.sep, '/') for arg in args]
 
 class Builder:
     def __init__(self, session, **kwargs):
@@ -193,7 +191,7 @@ class Builder:
         self.cmd(['cget', '-p', self.get_prefix()] + list(args), **kwargs)
 
     def cmake(self, *args, **kwargs):
-        self.cmd(['cmake'] + list(sanitize_cmake_args(args)), **kwargs)
+        self.cmd(['cmake'] + list(args), **kwargs)
 
     def make(self, target, build='.'):
         args = ['--build', build, '--config', 'Release', '--target', target, '--', '-j' + str(multiprocessing.cpu_count())]
