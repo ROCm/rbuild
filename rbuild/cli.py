@@ -116,7 +116,7 @@ def get_config_parser(file=None):
         reqs = '-f requirements.txt'
         if os.path.exists(os.path.join(os.getcwd(), 'dev-requirements.txt')):
             reqs = '-f dev-requirements.txt'
-        parser.read_string(default_ini.format(reqs).decode('utf-8'))
+        parser.read_string(default_ini.format(reqs))
     return parser
 
 def parse_lines(s):
