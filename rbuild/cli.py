@@ -196,8 +196,13 @@ class Builder:
     def cmake(self, *args, **kwargs):
         self.cmd(['cmake'] + sanitize_cmake_args(list(args)), **kwargs)
 
+    def is_make_generator(self):
+        return os.path.exists(self.get_build_path('Makefile'))
+
     def make(self, target, build='.'):
-        args = ['--build', build, '--config', 'Release', '--target', target, '--', '-j' + str(multiprocessing.cpu_count())]
+        args = ['--build', build, '--config', 'Release', '--target', target]
+        if os.path.exists(os.path.join(build, 'Makefile')):
+            args = args + ['--', '-j' + str(multiprocessing.cpu_count())]
         self.cmake(*args)
 
     def compute_hash(self):
