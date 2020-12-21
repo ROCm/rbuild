@@ -200,7 +200,9 @@ class Builder:
         return os.path.exists(self.get_build_path('Makefile'))
 
     def make(self, target, build='.'):
-        args = ['--build', build, '--config', 'Release', '--target', target]
+        args = ['--build', build, '--config', 'Release']
+        if target != 'all':
+            args = args + ['--target', target]
         if os.path.exists(os.path.join(build, 'Makefile')):
             args = args + ['--', '-j' + str(multiprocessing.cpu_count())]
         self.cmake(*args)
