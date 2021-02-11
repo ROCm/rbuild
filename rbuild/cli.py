@@ -142,7 +142,10 @@ def get_session_options(session, file=None):
         fallback = True
         session = session[4:]
     if fallback and not parser.has_section(session):
-        return to_dict(parser.items('default'))
+        if parser.has_section('build'):
+            return to_dict(parser.items('build'))
+        else:
+            return to_dict(parser.items('default'))
     return to_dict(parser.items(session))
 
 def sanitize_cmake_args(args):
@@ -263,7 +266,7 @@ def build_command(require_deps=True, no_build_dir=False):
         def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, session, *args, **kwargs):
             arg_session = session
             def make_builder(session=None):
-                s = arg_session or session or 'default'
+                s = arg_session or session or 'try:build'
                 return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define)
             f(make_builder, *args, **kwargs)
         return w
