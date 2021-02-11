@@ -1,6 +1,7 @@
 import click
 import configparser
 import functools
+import glob
 import hashlib
 import multiprocessing
 import os
@@ -151,6 +152,12 @@ def get_session_options(session, file=None):
 def sanitize_cmake_args(args):
     return [arg.replace(os.sep, '/') for arg in args]
 
+def get_rocm_path():
+    paths = glob.glob('/opt/rocm-*')
+    if len(paths) == 1:
+        return paths[0]
+    return '/opt/rocm'
+
 class Builder:
     def __init__(self, session, **kwargs):
         # Default options
@@ -162,6 +169,7 @@ class Builder:
             'define': [],
             'ignore': [],
             'deps': [],
+            'rocm_path': get_rocm_path()
         }
         session_options = get_session_options(session or 'default')
         self.options = merge(default_options, session_options, remove_empty_values(kwargs))
