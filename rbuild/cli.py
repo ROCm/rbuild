@@ -143,8 +143,8 @@ def get_session_options(session, file=None):
         fallback = True
         session = session[4:]
     if fallback and not parser.has_section(session):
-        if parser.has_section('build'):
-            return to_dict(parser.items('build'))
+        if parser.has_section('main'):
+            return to_dict(parser.items('main'))
         else:
             return to_dict(parser.items('default'))
     return to_dict(parser.items(session))
@@ -274,7 +274,7 @@ def build_command(require_deps=True, no_build_dir=False):
         def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, session, *args, **kwargs):
             arg_session = session
             def make_builder(session=None):
-                s = arg_session or session or 'try:build'
+                s = arg_session or session or 'try:main'
                 return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define)
             f(make_builder, *args, **kwargs)
         return w

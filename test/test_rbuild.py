@@ -150,7 +150,7 @@ def test_build_targets(d):
 
 
 simple_build_ini = '''
-[build]
+[main]
 deps = -f requirements.txt
 '''
 def test_simple_build_ini(d):
@@ -193,7 +193,7 @@ def test_simple_direct_ini2(d):
     run_rb(d, ini=simple_direct_ini, args=['develop'])
 
 simple_ignore_ini = '''
-[build]
+[main]
 deps = RadeonOpenCompute/rocm-cmake@master
 ignore = RadeonOpenCompute/rocm-cmake
 [develop]
@@ -226,7 +226,7 @@ def test_custom_session_ini3(d):
     run_rb(d, ini=custom_session_ini, args=['build', '-s', 'bar'])
 
 multiple_deps_ini = '''
-[build]
+[main]
 deps = 
     pfultz2/half@1.12.0 -X header
     RadeonOpenCompute/rocm-cmake@master
