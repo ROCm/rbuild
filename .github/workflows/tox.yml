@@ -26,6 +26,9 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+      continue-on-error: true
     - name: Install dependencies
       run: |
         python -m pip install --upgrade setuptools pip wheel
