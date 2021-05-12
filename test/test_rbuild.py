@@ -259,7 +259,7 @@ deps = -f requirements.txt
 '''
 simple_prepare_init_flag_reqs = '''
 rocm-cmake,https://github.com/RadeonOpenCompute/rocm-cmake/archive/master.tar.gz
-{}
+file://{}
 '''.format(get_path('need_flag'))
 def test_simple_prepare_init_flag_ini(d):
     run_rb(d, ini=simple_prepare_init_flag_ini, args=['prepare'], requirements=simple_prepare_init_flag_reqs)
