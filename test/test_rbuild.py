@@ -49,6 +49,9 @@ def run_rb(d, src='simple', ini='', args=[], requirements=None):
         f.write(ini)
 
     if requirements:
+        print('*************************************')
+        print(requirements)
+        print('*************************************')
         with open(d.get_path('src', 'requirements.txt'), 'w') as f:
             f.write(requirements)
 
