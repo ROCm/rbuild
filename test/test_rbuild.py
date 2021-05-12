@@ -56,6 +56,11 @@ def run_rb(d, src='simple', ini='', args=[]):
 def d(tmpdir):
     return DirForTests(tmpdir.strpath)
 
+def test_hash(d):
+    deps = d.get_path('deps')
+    src = get_path('simple')
+    rb('hash', '-d', deps, cwd=src)
+
 def test_prepare_package(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
@@ -233,3 +238,10 @@ deps =
 '''
 def test_multiple_deps_ini(d):
     run_rb(d, ini=multiple_deps_ini, args=['build'])
+
+rocm_path_ini = '''
+[main]
+cxx = ${rocm_path}/llvm/bin/clang++
+'''
+def test_hash_rocm_path(d):
+    run_rb(d, ini=rocm_path_ini, args=['hash'])

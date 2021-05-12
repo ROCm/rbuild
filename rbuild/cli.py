@@ -108,10 +108,18 @@ ignore =
 deps = {}
 '''
 
-def get_config_parser(file=None):
+def convert_defaults(d):
+    r = {}
+    for key, value in d.items():
+        v = value
+        if isinstance(value, list):
+            v = '\n'.join(value)
+        r[key] = v
+    return r
+
+def get_config_parser(file=None, defaults={}):
     f = file or os.path.join(os.getcwd(), 'rbuild.ini')
-    defaults = {}
-    parser = configparser.ConfigParser(empty_lines_in_values=False, defaults=defaults, default_section='default', interpolation=configparser.ExtendedInterpolation())
+    parser = configparser.ConfigParser(empty_lines_in_values=False, defaults=convert_defaults(defaults), default_section='default', interpolation=configparser.ExtendedInterpolation())
     if os.path.exists(f):
         parser.read([f])
     else:
@@ -136,8 +144,8 @@ def to_dict(items):
         r[key] = v
     return r
 
-def get_session_options(session, file=None):
-    parser = get_config_parser(file)
+def get_session_options(session, file=None, defaults={}):
+    parser = get_config_parser(file, defaults=defaults)
     fallback = False
     if session.startswith('try:'):
         fallback = True
@@ -171,7 +179,7 @@ class Builder:
             'deps': [],
             'rocm_path': get_rocm_path()
         }
-        session_options = get_session_options(session or 'default')
+        session_options = get_session_options(session or 'default', defaults=default_options)
         self.options = merge(default_options, session_options, remove_empty_values(kwargs))
 
 
@@ -290,6 +298,12 @@ def cli():
 def prepare(builder):
     b = builder()
     b.prepare(init_with_define_flag=True)
+
+@cli.command()
+@build_command(no_build_dir=False)
+def hash(builder):
+    b = builder()
+    click.echo(b.compute_hash())
 
 @cli.command()
 @build_command()
