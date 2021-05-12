@@ -249,14 +249,15 @@ cxx = ${rocm_path}/llvm/bin/clang++
 def test_hash_rocm_path(d):
     run_rb(d, ini=rocm_path_ini, args=['hash'])
 
-simple_prepare_init_flag_ini = '''
-[main]
-define = SPECIAL_FLAG=1
-deps = -f requirements.txt
-'''
-simple_prepare_init_flag_reqs = '''
-rocm-cmake,https://github.com/RadeonOpenCompute/rocm-cmake/archive/master.tar.gz
-{}
-'''.format(get_path('need_flag'))
-def test_simple_prepare_init_flag_ini(d):
-    run_rb(d, ini=simple_prepare_init_flag_ini, args=['prepare'], requirements=simple_prepare_init_flag_reqs)
+if os.name == 'posix':
+    simple_prepare_init_flag_ini = '''
+    [main]
+    define = SPECIAL_FLAG=1
+    deps = -f requirements.txt
+    '''
+    simple_prepare_init_flag_reqs = '''
+    rocm-cmake,https://github.com/RadeonOpenCompute/rocm-cmake/archive/master.tar.gz
+    {}
+    '''.format(get_path('need_flag'))
+    def test_simple_prepare_init_flag_ini(d):
+        run_rb(d, ini=simple_prepare_init_flag_ini, args=['prepare'], requirements=simple_prepare_init_flag_reqs)
