@@ -211,7 +211,7 @@ class Builder:
         subprocess.check_call(c, **kwargs)
 
     def cget(self, *args, **kwargs):
-        self.cmd(['cget', '-p', self.get_prefix()] + list(args), **kwargs)
+        self.cmd(['cget', '-p', self.get_prefix(), '--verbose'] + list(args), **kwargs)
 
     def cmake(self, *args, **kwargs):
         self.cmd(['cmake'] + sanitize_cmake_args(list(args)), **kwargs)
