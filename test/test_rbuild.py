@@ -49,9 +49,6 @@ def run_rb(d, src='simple', ini='', args=[], requirements=None):
         f.write(ini)
 
     if requirements:
-        print('*************************************')
-        print(requirements)
-        print('*************************************')
         with open(d.get_path('src', 'requirements.txt'), 'w') as f:
             f.write(requirements)
 
@@ -259,7 +256,7 @@ deps = -f requirements.txt
 '''
 simple_prepare_init_flag_reqs = '''
 rocm-cmake,https://github.com/RadeonOpenCompute/rocm-cmake/archive/master.tar.gz
-file://{}
+{}
 '''.format(get_path('need_flag'))
 def test_simple_prepare_init_flag_ini(d):
     run_rb(d, ini=simple_prepare_init_flag_ini, args=['prepare'], requirements=simple_prepare_init_flag_reqs)
