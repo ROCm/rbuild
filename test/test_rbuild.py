@@ -57,9 +57,8 @@ def d(tmpdir):
     return DirForTests(tmpdir.strpath)
 
 def test_hash(d):
-    deps = d.get_path('deps')
     src = get_path('simple')
-    rb('hash', '-d', deps, cwd=src)
+    rb('hash', cwd=src)
 
 def test_prepare_package(d):
     deps = d.get_path('deps')

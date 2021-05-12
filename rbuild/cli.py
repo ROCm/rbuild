@@ -300,7 +300,7 @@ def prepare(builder):
     b.prepare(init_with_define_flag=True)
 
 @cli.command()
-@build_command(no_build_dir=False)
+@build_command(no_build_dir=False, require_deps=False)
 def hash(builder):
     b = builder()
     click.echo(b.compute_hash())
