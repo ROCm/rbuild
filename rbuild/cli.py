@@ -181,6 +181,7 @@ class Builder:
         }
         session_options = get_session_options(session or 'default', defaults=default_options)
         self.options = merge(default_options, session_options, remove_empty_values(kwargs))
+        self.explicit_define = kwargs.get('define', [])
 
 
     def get_prefix(self):
@@ -248,7 +249,7 @@ class Builder:
                 args[option] = self.options[option]
         defines = self.options['global_define']
         if init_with_define_flag:
-            defines = list(defines) + list(self.get_defines())
+            defines = list(defines) + list(self.explicit_define)
         cg('init', *make_args(define=defines, **args))
 
         for dep in self.get_ignore():

@@ -38,7 +38,7 @@ class DirForTests:
     def get_path(self, *ps):
         return os.path.join(self.tmp_dir, *ps)
 
-def run_rb(d, src='simple', ini='', args=[]):
+def run_rb(d, src='simple', ini='', args=[], requirements=None):
     bd = d.mkdir('build')
     deps = bd.get_path('deps')
     build = bd.get_path('build')
@@ -47,6 +47,10 @@ def run_rb(d, src='simple', ini='', args=[]):
 
     with open(d.get_path('src', 'rbuild.ini'), 'w') as f:
         f.write(ini)
+
+    if requirements:
+        with open(d.get_path('src', 'requirements.txt'), 'w') as f:
+            f.write(requirements)
 
     args = args + ['-B', build, '-d', deps]
     rb(*args, cwd=d.get_path('src'))
@@ -244,3 +248,15 @@ cxx = ${rocm_path}/llvm/bin/clang++
 '''
 def test_hash_rocm_path(d):
     run_rb(d, ini=rocm_path_ini, args=['hash'])
+
+simple_prepare_init_flag_ini = '''
+[main]
+define = SPECIAL_FLAG=1
+deps = -f requirements.txt
+'''
+simple_prepare_init_flag_reqs = '''
+rocm-cmake,https://github.com/RadeonOpenCompute/rocm-cmake/archive/master.tar.gz
+{}
+'''.format(get_path('need_flag'))
+def test_simple_prepare_init_flag_ini(d):
+    run_rb(d, ini=simple_prepare_init_flag_ini, args=['prepare'], requirements=simple_prepare_init_flag_reqs)
