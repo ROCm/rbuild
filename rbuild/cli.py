@@ -175,9 +175,9 @@ class Builder:
     def __init__(self, session, **kwargs):
         # Default options
         default_options = {
-            'deps_dir': os.path.join(os.getcwd(), 'deps'),
+            'deps_dir': kwargs.get('deps_dir', os.path.join(os.getcwd(), 'deps')),
             'source_dir': os.getcwd(),
-            'build_dir': os.path.join(os.getcwd(), 'build'),
+            'build_dir': kwargs.get('build_dir', os.path.join(os.getcwd(), 'build')),
             'global_define': [],
             'define': [],
             'ignore': [],
