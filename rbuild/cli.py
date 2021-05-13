@@ -173,11 +173,12 @@ def get_rocm_path():
 
 class Builder:
     def __init__(self, session, **kwargs):
+        flags = remove_empty_values(kwargs)
         # Default options
         default_options = {
-            'deps_dir': kwargs.get('deps_dir', os.path.join(os.getcwd(), 'deps')),
+            'deps_dir': flags.get('deps_dir', os.path.join(os.getcwd(), 'deps')),
             'source_dir': os.getcwd(),
-            'build_dir': kwargs.get('build_dir', os.path.join(os.getcwd(), 'build')),
+            'build_dir': flags.get('build_dir', os.path.join(os.getcwd(), 'build')),
             'global_define': [],
             'define': [],
             'ignore': [],
@@ -185,8 +186,8 @@ class Builder:
             'rocm_path': get_rocm_path()
         }
         session_options = get_session_options(session or 'default', defaults=default_options)
-        self.options = merge(default_options, session_options, remove_empty_values(kwargs), append=['define', 'global_define'])
-        self.explicit_define = kwargs.get('define', [])
+        self.options = merge(default_options, session_options, flags, append=['define', 'global_define'])
+        self.explicit_define = flags.get('define', [])
 
 
     def get_prefix(self):
