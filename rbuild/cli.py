@@ -22,10 +22,15 @@ ignore_deps = [
     'ROCmSoftwarePlatform/rocBLAS'
 ]
 
-def merge(*args):
+def merge(*args, **kwargs):
+    append = kwargs.get('append', [])
     result = {}
     for d in args:
-        result.update(dict(d or {}))
+        for key, value in d.items():
+            if key in append and key in result:
+                result[key] = list(result[key]) + list(value)
+            else:
+                result[key] = value
     return result
 
 def remove_empty_values(d):
@@ -180,7 +185,7 @@ class Builder:
             'rocm_path': get_rocm_path()
         }
         session_options = get_session_options(session or 'default', defaults=default_options)
-        self.options = merge(default_options, session_options, remove_empty_values(kwargs))
+        self.options = merge(default_options, session_options, remove_empty_values(kwargs), append=['define', 'global_define'])
         self.explicit_define = kwargs.get('define', [])
 
 

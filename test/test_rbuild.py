@@ -215,6 +215,21 @@ def test_simple_ignore_ini2(d):
     run_rb(d, ini=simple_ignore_ini, args=['develop'])
 
 
+simple_define_ini = '''
+[main]
+define = 
+    CMAKE_BUILD_TYPE=Debug
+    SPECIAL_FLAG=1
+deps = -f requirements.txt
+'''
+@pytest.mark.xfail(strict=True)
+def test_simple_define_ini(d):
+    run_rb(d, ini=simple_define_ini, src='need_flag', args=['build'])
+
+@pytest.mark.xfail(strict=True)
+def test_simple_define_extra_ini(d):
+    run_rb(d, ini=simple_define_ini, src='need_flag', args=['build', '-DANOTHER_FLAG=1'])
+
 custom_session_ini = '''
 [foo]
 deps = RadeonOpenCompute/rocm-cmake@master
