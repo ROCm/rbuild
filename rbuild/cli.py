@@ -40,6 +40,10 @@ def remove_empty_values(d):
             r[key] = value
     return r
 
+def abspath(p):
+    if os.path.isabs(p): return p
+    return os.path.abspath(p)
+
 def mkdir(p):
     if not os.path.exists(p): os.makedirs(p)
     return p
@@ -176,9 +180,9 @@ class Builder:
         flags = remove_empty_values(kwargs)
         # Default options
         default_options = {
-            'deps_dir': flags.get('deps_dir', os.path.join(os.getcwd(), 'deps')),
+            'deps_dir': abspath(flags.get('deps_dir', os.path.join(os.getcwd(), 'deps'))),
             'source_dir': os.getcwd(),
-            'build_dir': flags.get('build_dir', os.path.join(os.getcwd(), 'build')),
+            'build_dir': abspath(flags.get('build_dir', os.path.join(os.getcwd(), 'build'))),
             'global_define': [],
             'define': [],
             'ignore': [],
