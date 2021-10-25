@@ -1,4 +1,4 @@
-cget>=0.1.9
+cget>=0.2.0
 click==7.1.2
 configparser==4.0.2
 future
