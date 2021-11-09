@@ -326,7 +326,7 @@ def package(builder):
 
 @cli.command()
 @build_command()
-@click.option('-t', '--target', multiple=True, help="Target to build")
+@click.option('-T', '--target', multiple=True, help="Target to build")
 def build(builder, target):
     b = builder()
     b.prepare()

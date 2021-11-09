@@ -136,13 +136,13 @@ def test_build_target(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
     src = get_path('simple')
-    rb('build', '-B', build, '-d', deps, '-t', 'simple', cwd=src)
+    rb('build', '-B', build, '-d', deps, '-T', 'simple', cwd=src)
 
 def test_build_targets(d):
     deps = d.get_path('deps')
     build = d.get_path('build')
     src = get_path('simple')
-    rb('build', '-B', build, '-d', deps, '-t', 'simple', '-t', 'package', cwd=src)
+    rb('build', '-B', build, '-d', deps, '-T', 'simple', '-T', 'package', cwd=src)
 
 # def test_develop(d):
 #     deps = d.get_path('deps')
