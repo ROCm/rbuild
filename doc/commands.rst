@@ -31,7 +31,7 @@ This requires ``$deps_dir`` to be passed in, which is a directory used to instal
 
 .. include:: ./flags/main_session.rst
 
-.. option::  -T, --target TEXT
+.. option::  -T, --target <target>
 
 Target to build. By default, it builds the ``all`` target, but this flag can be specified to build other targets. This can be passed multiple targets to build.
 
