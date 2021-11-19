@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commands &mdash; rbuild  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="rbuild.ini" href="config.html" />
+    <link rel="prev" title="Getting Started" href="gettingstarted.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> rbuild
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prepare">prepare</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build">build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#package">package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#develop">develop</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">rbuild.ini</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">rbuild</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Commands</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/commands.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="commands">
+<h1>Commands<a class="headerlink" href="#commands" title="Permalink to this headline"></a></h1>
+<section id="prepare">
+<h2>prepare<a class="headerlink" href="#prepare" title="Permalink to this headline"></a></h2>
+<p>The prepare command only installs dependencies for a component. It can be used like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rbuild prepare -d $deps_dir
+</pre></div>
+</div>
+<p>This requires <code class="docutils literal notranslate"><span class="pre">$deps_dir</span></code> to be passed in, which is a directory used to install any dependencies to. No build directory is created for this command.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-prepare-d">
+<span id="cmdoption-rbuild-prepare-deps-dir"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--deps-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-prepare-d" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Directory for the third-party dependencies. This flag is always required.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-prepare-S">
+<span id="cmdoption-rbuild-prepare-s"></span><span id="cmdoption-rbuild-prepare-source-dir"></span><span class="sig-name descname"><span class="pre">-S</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--source-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-prepare-S" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Directory of the source code. If no directory is provided it will use the current working directory.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-prepare-t">
+<span id="cmdoption-rbuild-prepare-toolchain"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--toolchain</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-prepare-t" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set cmake toolchain file to use</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-prepare-cxx">
+<span class="sig-name descname"><span class="pre">--cxx</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;executable&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-prepare-cxx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set c++ compiler</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-prepare-cc">
+<span class="sig-name descname"><span class="pre">--cc</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;executable&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-prepare-cc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set c compiler</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-prepare-D">
+<span id="cmdoption-rbuild-prepare-define"></span><span class="sig-name descname"><span class="pre">-D</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--define</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEXT&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-prepare-D" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Extra cmake variables to define. Since this will only build the dependencies, these variables will be set for building dependencies only and will not apply to building the project.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-prepare-0">
+<span id="cmdoption-rbuild-prepare-session"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--session</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;name&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-prepare-0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Pick the session to use. If no session is specified it will use the <code class="docutils literal notranslate"><span class="pre">main</span></code> session.</p>
+</section>
+<section id="build">
+<h2>build<a class="headerlink" href="#build" title="Permalink to this headline"></a></h2>
+<p>To build a component:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rbuild build -d $deps_dir
+</pre></div>
+</div>
+<p>This requires <code class="docutils literal notranslate"><span class="pre">$deps_dir</span></code> to be passed in, which is a directory used to install any dependencies to. The final result of the build will be in the <code class="docutils literal notranslate"><span class="pre">build</span></code> directory, but can be overwritten with the <code class="docutils literal notranslate"><span class="pre">-B</span></code> flag.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-build-d">
+<span id="cmdoption-rbuild-build-deps-dir"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--deps-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-build-d" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Directory for the third-party dependencies. This flag is always required.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-build-S">
+<span id="cmdoption-rbuild-build-s"></span><span id="cmdoption-rbuild-build-source-dir"></span><span class="sig-name descname"><span class="pre">-S</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--source-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-build-S" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Directory of the source code. If no directory is provided it will use the current working directory.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-build-t">
+<span id="cmdoption-rbuild-build-toolchain"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--toolchain</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-build-t" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set cmake toolchain file to use</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-build-cxx">
+<span class="sig-name descname"><span class="pre">--cxx</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;executable&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-build-cxx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set c++ compiler</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-build-cc">
+<span class="sig-name descname"><span class="pre">--cc</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;executable&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-build-cc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set c compiler</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-build-D">
+<span id="cmdoption-rbuild-build-define"></span><span class="sig-name descname"><span class="pre">-D</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--define</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEXT&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-build-D" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Extra cmake variables to define. These variables will be set for the building of the project-only and it will not apply to dependencies.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-build-0">
+<span id="cmdoption-rbuild-build-session"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--session</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;name&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-build-0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Pick the session to use. If no session is specified it will use the <code class="docutils literal notranslate"><span class="pre">main</span></code> session.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-build-T">
+<span id="cmdoption-rbuild-build-target"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--target</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-build-T" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Target to build. By default, it builds the <code class="docutils literal notranslate"><span class="pre">all</span></code> target, but this flag can be specified to build other targets. This can be passed multiple targets to build.</p>
+</section>
+<section id="package">
+<h2>package<a class="headerlink" href="#package" title="Permalink to this headline"></a></h2>
+<p>To build the packages for a component:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rbuild package -d $deps_dir
+</pre></div>
+</div>
+<p>This requires <code class="docutils literal notranslate"><span class="pre">$deps_dir</span></code> to be passed in, which is a directory used to install any dependencies to. The final result of the packages will be in the <code class="docutils literal notranslate"><span class="pre">build</span></code> directory, but can be overwritten with the <code class="docutils literal notranslate"><span class="pre">-B</span></code> flag.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-package-d">
+<span id="cmdoption-rbuild-package-deps-dir"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--deps-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-package-d" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Directory for the third-party dependencies. This flag is always required.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-package-S">
+<span id="cmdoption-rbuild-package-s"></span><span id="cmdoption-rbuild-package-source-dir"></span><span class="sig-name descname"><span class="pre">-S</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--source-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-package-S" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Directory of the source code. If no directory is provided it will use the current working directory.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-package-t">
+<span id="cmdoption-rbuild-package-toolchain"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--toolchain</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-package-t" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set cmake toolchain file to use</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-package-cxx">
+<span class="sig-name descname"><span class="pre">--cxx</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;executable&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-package-cxx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set c++ compiler</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-package-cc">
+<span class="sig-name descname"><span class="pre">--cc</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;executable&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-package-cc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set c compiler</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-package-D">
+<span id="cmdoption-rbuild-package-define"></span><span class="sig-name descname"><span class="pre">-D</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--define</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEXT&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-package-D" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Extra cmake variables to define. These variables will be set for the building of the project-only and it will not apply to dependencies.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-package-0">
+<span id="cmdoption-rbuild-package-session"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--session</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;name&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-package-0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Pick the session to use. If no session is specified it will use the <code class="docutils literal notranslate"><span class="pre">main</span></code> session.</p>
+</section>
+<section id="develop">
+<h2>develop<a class="headerlink" href="#develop" title="Permalink to this headline"></a></h2>
+<p>The develop command can be used to setup an environment for development. It will install all development dependencies and then configure cmake if a build directory is passed in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>rbuild develop -d $deps_dir -B $build_dir
+</pre></div>
+</div>
+<p>This requires <code class="docutils literal notranslate"><span class="pre">$deps_dir</span></code> to be passed in, which is a directory used to install any dependencies to. The <code class="docutils literal notranslate"><span class="pre">$build_dir</span></code> is a directory that will be configured with cmake. If this is not passed in, no build directory will be configured.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-develop-d">
+<span id="cmdoption-rbuild-develop-deps-dir"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--deps-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-develop-d" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Directory for the third-party dependencies. This flag is always required.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-develop-S">
+<span id="cmdoption-rbuild-develop-s"></span><span id="cmdoption-rbuild-develop-source-dir"></span><span class="sig-name descname"><span class="pre">-S</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--source-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-develop-S" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Directory of the source code. If no directory is provided it will use the current working directory.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-develop-t">
+<span id="cmdoption-rbuild-develop-toolchain"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--toolchain</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;directory&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-develop-t" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set cmake toolchain file to use</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-develop-cxx">
+<span class="sig-name descname"><span class="pre">--cxx</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;executable&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-develop-cxx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set c++ compiler</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-develop-cc">
+<span class="sig-name descname"><span class="pre">--cc</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;executable&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-develop-cc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Set c compiler</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-develop-D">
+<span id="cmdoption-rbuild-develop-define"></span><span class="sig-name descname"><span class="pre">-D</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--define</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEXT&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-develop-D" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Extra cmake variables to define. These variables will be set for the building of the project-only and it will not apply to dependencies.</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-rbuild-develop-0">
+<span id="cmdoption-rbuild-develop-session"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--session</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;name&gt;</span></span><a class="headerlink" href="#cmdoption-rbuild-develop-0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Pick the session to use. If no session is specified it will first try to use the <code class="docutils literal notranslate"><span class="pre">develop</span></code> session otherwise it will use the <code class="docutils literal notranslate"><span class="pre">main</span></code> session.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gettingstarted.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="config.html" class="btn btn-neutral float-right" title="rbuild.ini" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Paul Fultz II.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
