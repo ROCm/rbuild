@@ -127,7 +127,8 @@ def convert_defaults(d):
     return r
 
 def get_config_parser(file=None, defaults={}):
-    f = file or os.path.join(os.getcwd(), 'rbuild.ini')
+    source_dir = defaults.get('source_dir', os.getcwd())
+    f = file or os.path.join(source_dir, 'rbuild.ini')
     parser = configparser.ConfigParser(empty_lines_in_values=False, defaults=convert_defaults(defaults), default_section='default', interpolation=configparser.ExtendedInterpolation())
     if os.path.exists(f):
         parser.read([f])
@@ -181,7 +182,7 @@ class Builder:
         # Default options
         default_options = {
             'deps_dir': abspath(flags.get('deps_dir', os.path.join(os.getcwd(), 'deps'))),
-            'source_dir': os.getcwd(),
+            'source_dir': kwargs.get('source_dir', os.getcwd()),
             'build_dir': abspath(flags.get('build_dir', os.path.join(os.getcwd(), 'build'))),
             'global_define': [],
             'define': [],
