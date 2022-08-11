@@ -177,12 +177,12 @@ def get_rocm_path():
     return '/opt/rocm'
 
 class Builder:
-    def __init__(self, session, **kwargs):
+    def __init__(self, session, source_dir=None, **kwargs):
         flags = remove_empty_values(kwargs)
         # Default options
         default_options = {
             'deps_dir': abspath(flags.get('deps_dir', os.path.join(os.getcwd(), 'deps'))),
-            'source_dir': kwargs.get('source_dir', os.getcwd()),
+            'source_dir': source_dir or os.getcwd(),
             'build_dir': abspath(flags.get('build_dir', os.path.join(os.getcwd(), 'build'))),
             'global_define': [],
             'define': [],
@@ -283,7 +283,7 @@ class Builder:
 def build_command(require_deps=True, no_build_dir=False):
     def wrap(f):
         @click.option('-d', '--deps-dir', required=require_deps, help="Directory for the third-party dependencies")
-        @click.option('-S', '--source-dir', required=False, help="Directory of the source code")
+        @click.option('-S', '--source-dir', required=False, help="Directory of the source code", default=os.getcwd())
         @click.option('-B', '--build-dir', required=False, help="Directory for the build", hidden=no_build_dir)
         @click.option('-t', '--toolchain', required=False, help="Set cmake toolchain file to use")
         @click.option('--cxx', required=False, help="Set c++ compiler")
