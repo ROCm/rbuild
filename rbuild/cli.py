@@ -342,3 +342,5 @@ def develop(builder):
     b.prepare()
     b.configure(clean=False)
 
+if __name__ == '__main__':
+    cli()
