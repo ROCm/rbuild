@@ -1,3 +1,7 @@
+import contextlib
+import platform
+from pathlib import Path
+
 import click
 import configparser
 import functools
@@ -22,6 +26,84 @@ ignore_deps = [
     'ROCmSoftwarePlatform/rocBLAS'
 ]
 
+
+def get_rocm_path():
+    paths = None
+    if platform.system() == 'Windows':
+        paths = os.environ.get('HIP_PATH')
+    if paths is None:
+        paths = glob.glob('/opt/rocm-*')
+    if len(paths) == 1:
+        return paths[0]
+    if platform.system() == 'Windows':
+        return 'C:\\opt\\rocm'
+    else:
+        return '/opt/rocm'
+
+
+def get_llvm_path():
+    path = Path(get_rocm_path())
+    if platform.system() != 'Windows':
+        path /= 'llvm'
+    return str(path)
+
+
+def extract_vs_env(vs_install_path: str = None) -> dict:
+    if vs_install_path is None:
+        vs_installer_path = f'{os.environ["ProgramFiles(x86)"]}\\Microsoft Visual Studio\\Installer'
+
+        if vs_installer_path == '':
+            raise 'Could not find Visual Studio or Build Tools on the system'
+
+        vs_install_path = subprocess.run([
+            f'{vs_installer_path}\\vswhere.exe',
+            '-latest',
+            '-property',
+            'installationPath'], capture_output=True, check=True
+        ).stdout.decode()
+    vs_dev_cmd = f'{vs_install_path.strip()}\\VC\\Auxiliary\\Build\\vcvars64.bat'
+
+    subprocess_call = [os.environ["ComSpec"], '/c', vs_dev_cmd, '>NUL', '&&', 'set']
+    stdout_text = subprocess.run(subprocess_call, check=True, capture_output=True).stdout.decode()
+    stdout_lines = stdout_text.split('\r\n')
+    env_mapping = {}
+
+    for stdout_line in stdout_lines:
+        equality_sign_loc = stdout_line.find('=')
+        if equality_sign_loc != -1:
+            key = stdout_line[:equality_sign_loc]
+            value = stdout_line[equality_sign_loc + 1:]
+            env_mapping[key] = value
+
+    return env_mapping
+
+
+@contextlib.contextmanager
+def vs_env(extra_env: dict = None, vs_install_path: str = None):
+    # if is_installed('ninja'):
+    #     raise 'Ninja is not installed'
+
+    extracted_vs_env = extract_vs_env(vs_install_path)
+
+    existing_environ = dict(os.environ)
+    os.environ.clear()
+    if extra_env:
+        os.environ.update(extra_env)
+    os.environ.update(extracted_vs_env)
+
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(existing_environ)
+
+
+@contextlib.contextmanager
+def vs_env_default():
+    with vs_env({'ROCM_DIR': get_rocm_path(), 'HIP_PLATFORM': 'amd'}, vs_install_path=os.getenv('VS_PATH')):
+        yield
+
+
 def merge(*args, **kwargs):
     append = kwargs.get('append', [])
     result = {}
@@ -30,8 +112,12 @@ def merge(*args, **kwargs):
             if key in append and key in result:
                 result[key] = list(result[key]) + list(value)
             else:
-                result[key] = value
+                if key.endswith('_dir'):
+                    result[key] = str(Path(value).absolute())
+                else:
+                    result[key] = value
     return result
+
 
 def remove_empty_values(d):
     r = {}
@@ -40,16 +126,20 @@ def remove_empty_values(d):
             r[key] = value
     return r
 
+
 def abspath(p):
     if os.path.isabs(p): return p
     return os.path.abspath(p)
+
 
 def mkdir(p):
     if not os.path.exists(p): os.makedirs(p)
     return p
 
+
 def delete_dir(path):
     if path is not None and os.path.exists(path): shutil.rmtree(path)
+
 
 def write_to(file, lines):
     content = list((line + "\n" for line in lines))
@@ -57,21 +147,25 @@ def write_to(file, lines):
         with open(file, 'w') as f:
             f.writelines(content)
 
+
 def read_from(filename):
     if os.path.exists(filename):
         with open(filename) as f:
             for line in f.read().splitlines():
                 yield line
 
+
 def actual_path(path, start=None):
     if os.path.isabs(path):
         return path
     return os.path.normpath(os.path.join(start or os.getcwd(), os.path.expanduser(path)))
 
+
 def first(s, fallback=None):
     for x in s:
         return x
     return fallback
+
 
 def make_args(**kwargs):
     args = []
@@ -82,8 +176,10 @@ def make_args(**kwargs):
                 args = args + [name, arg]
     return args
 
+
 def make_defines(defines):
-    return ['-D'+x for x in defines]
+    return ['-D' + x for x in defines]
+
 
 def read_reqs(lines, path=None, ignore=None):
     start = os.path.dirname(path) if path else None
@@ -98,11 +194,13 @@ def read_reqs(lines, path=None, ignore=None):
         elif not tokens[0].startswith(tuple(ignore or [])):
             yield ' '.join(tokens)
 
+
 def compute_md5(lines):
     m = hashlib.md5()
     for x in lines:
         m.update(x.encode('utf-8'))
     return m.hexdigest()
+
 
 default_ini = '''
 [default]
@@ -117,6 +215,7 @@ ignore =
 deps = {}
 '''
 
+
 def convert_defaults(d):
     r = {}
     for key, value in d.items():
@@ -126,10 +225,12 @@ def convert_defaults(d):
         r[key] = v
     return r
 
+
 def get_config_parser(file=None, defaults={}):
     source_dir = defaults.get('source_dir', os.getcwd())
     f = file or os.path.join(source_dir, 'rbuild.ini')
-    parser = configparser.ConfigParser(empty_lines_in_values=False, defaults=convert_defaults(defaults), default_section='default', interpolation=configparser.ExtendedInterpolation())
+    parser = configparser.ConfigParser(empty_lines_in_values=False, defaults=convert_defaults(defaults),
+                                       default_section='default', interpolation=configparser.ExtendedInterpolation())
     if os.path.exists(f):
         parser.read([f])
     else:
@@ -139,11 +240,13 @@ def get_config_parser(file=None, defaults={}):
         parser.read_string(str(default_ini.format(reqs)))
     return parser
 
+
 def parse_lines(s):
     for line in s.splitlines():
         x = line.strip()
         if x:
             yield x
+
 
 def to_dict(items):
     r = {}
@@ -153,6 +256,7 @@ def to_dict(items):
             v = list(parse_lines(value))
         r[key] = v
     return r
+
 
 def get_session_options(session, file=None, defaults={}):
     parser = get_config_parser(file, defaults=defaults)
@@ -167,34 +271,30 @@ def get_session_options(session, file=None, defaults={}):
             return to_dict(parser.items('default'))
     return to_dict(parser.items(session))
 
+
 def sanitize_cmake_args(args):
     return [arg.replace(os.sep, '/') for arg in args]
 
-def get_rocm_path():
-    paths = glob.glob('/opt/rocm-*')
-    if len(paths) == 1:
-        return paths[0]
-    return '/opt/rocm'
 
 class Builder:
     def __init__(self, session, source_dir=None, **kwargs):
         flags = remove_empty_values(kwargs)
         # Default options
         default_options = {
-            'deps_dir': abspath(flags.get('deps_dir', os.path.join(os.getcwd(), 'deps'))),
+            'deps_dir': str(Path(flags.get('deps_dir', 'deps')).absolute()),
             'source_dir': source_dir or os.getcwd(),
-            'build_dir': abspath(flags.get('build_dir', os.path.join(os.getcwd(), 'build'))),
+            'build_dir': str(Path(flags.get('build_dir', 'build')).absolute()),
             'global_define': [],
             'define': [],
             'ignore': [],
             'deps': [],
-            'rocm_path': get_rocm_path()
+            'rocm_path': get_rocm_path(),
+            'llvm_path': get_llvm_path()
         }
         self.config = flags.get('config', 'Release')
         session_options = get_session_options(session or 'default', defaults=default_options)
         self.options = merge(default_options, session_options, flags, append=['define', 'global_define'])
         self.explicit_define = flags.get('define', [])
-
 
     def get_prefix(self):
         return self.options['deps_dir']
@@ -240,7 +340,8 @@ class Builder:
         self.cmake(*args)
 
     def compute_hash(self):
-        return compute_md5(read_reqs(self.get_deps(), path=os.path.join(os.getcwd(), 'rbuild.ini'), ignore=self.get_ignore()))
+        return compute_md5(
+            read_reqs(self.get_deps(), path=os.path.join(os.getcwd(), 'rbuild.ini'), ignore=self.get_ignore()))
 
     def hash_matches(self, h):
         if first(read_from(self.get_hash_file()), '').strip() == h:
@@ -254,27 +355,54 @@ class Builder:
                 return
         self.cget('clean', '-y')
         args = {}
-        for option in ['cxx', 'cc', 'toolchain']:
-            if option in self.options:
-                args[option] = self.options[option]
+        if platform.system() != 'Windows':
+            for option in ['cxx', 'cc', 'toolchain']:
+                if option in self.options:
+                    args[option] = self.options[option]
         defines = self.options['global_define']
         if init_with_define_flag:
             defines = list(defines) + list(self.explicit_define)
         self.cget('init', *make_args(define=defines, **args))
-
         for dep in self.get_ignore():
             self.cget('ignore', dep)
-        for dep in self.get_deps():
-            tokens = shlex.split(dep, comments=True)
-            self.cget('install', *tokens, '--build-type', self.config, cwd=self.get_source_dir())
+        with vs_env_default():
+            for dep in self.get_deps():
+                tokens = shlex.split(dep, comments=True)
+                if platform.system() == 'Windows':
+                    tokens += ['-G', 'Ninja']
+                self.cget('install', *tokens, '--build-type', self.config, cwd=self.get_source_dir())
         write_to(self.get_hash_file(), [h])
 
     def configure(self, clean=True):
-        toolchain_file = os.path.join(self.get_prefix(), 'cget', 'cget.cmake')
-        if clean: delete_dir(self.get_build_dir())
+        if clean:
+            delete_dir(self.get_build_dir())
         mkdir(self.get_build_dir())
-        self.cmake(f'-DCMAKE_TOOLCHAIN_FILE={toolchain_file}', f'-DCMAKE_BUILD_TYPE={self.config}',
-                   self.get_source_dir(), *make_defines(self.get_defines()), cwd=self.get_build_dir())
+        generator = []
+        if platform.system() == 'Windows':
+            generator = ['-G', 'Ninja']
+        compilers = []
+        cxx = self.options.get('cxx')
+        if cxx is not None:
+            if platform.system() == 'Windows':
+                cxx = f'{cxx}.exe'
+            if ' ' in cxx:
+                cxx = f'"{cxx}"'
+            compilers.append(f'-DCMAKE_CXX_COMPILER={cxx}')
+        cc = self.options.get('cc')
+        if cc is not None:
+            if platform.system() == 'Windows':
+                cc = f'{cc}.exe'
+            if ' ' in cc:
+                cc = f'"{cc}"'
+            compilers.append(f'-DCMAKE_C_COMPILER={cc}')
+        with vs_env_default():
+            self.cmake(*generator,
+                       *compilers,
+                       f'-DCMAKE_BUILD_TYPE={self.config}',
+                       f'-DCMAKE_PREFIX_PATH={self.get_prefix()};{get_rocm_path()}',
+                       '-S', self.get_source_dir(),
+                       *make_defines(self.get_defines()),
+                       '-B', self.get_build_dir(), '-Wno-deprecated', '-Wno-dev')
 
     def build(self, target=None):
         self.make(target or None, build=self.get_build_dir())
@@ -295,15 +423,21 @@ def build_command(require_deps=True, no_build_dir=False):
         def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, session, config, *args, **kwargs):
             def make_builder(arg_session=None):
                 s = arg_session or session or 'try:main'
-                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define, config=config)
+                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir,
+                               toolchain=toolchain, cxx=cxx, cc=cc, define=define, config=config)
+
             f(make_builder, *args, **kwargs)
+
         return w
+
     return wrap
+
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.version_option(version=__version__, prog_name='rbuild')
 def cli():
     pass
+
 
 @cli.command()
 @build_command(no_build_dir=False)
@@ -311,11 +445,13 @@ def prepare(builder):
     b = builder()
     b.prepare(init_with_define_flag=True)
 
+
 @cli.command()
 @build_command(no_build_dir=False, require_deps=False)
 def hash(builder):
     b = builder()
     click.echo(b.compute_hash())
+
 
 @cli.command()
 @build_command()
@@ -324,6 +460,7 @@ def package(builder):
     b.prepare()
     b.configure(clean=True)
     b.build('package')
+
 
 @cli.command()
 @build_command()
@@ -335,12 +472,14 @@ def build(builder, target):
     for t in target or ['all']:
         b.build(t)
 
+
 @cli.command()
 @build_command(require_deps=False)
 def develop(builder):
     b = builder(session='try:develop')
     b.prepare()
     b.configure(clean=False)
+
 
 if __name__ == '__main__':
     cli()
