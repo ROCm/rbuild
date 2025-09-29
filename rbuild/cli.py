@@ -47,62 +47,68 @@ def get_llvm_path():
         path /= 'llvm'
     return str(path)
 
+if platform.system() == 'Windows':
 
-def extract_vs_env(vs_install_path: str = None) -> dict:
-    if vs_install_path is None:
-        vs_installer_path = f'{os.environ["ProgramFiles(x86)"]}\\Microsoft Visual Studio\\Installer'
+    def extract_vs_env(vs_install_path: str = None) -> dict:
+        if vs_install_path is None:
+            vs_installer_path = f'{os.environ["ProgramFiles(x86)"]}\\Microsoft Visual Studio\\Installer'
 
-        if vs_installer_path == '':
-            raise 'Could not find Visual Studio or Build Tools on the system'
+            if vs_installer_path == '':
+                raise 'Could not find Visual Studio or Build Tools on the system'
 
-        vs_install_path = subprocess.run([
-            f'{vs_installer_path}\\vswhere.exe',
-            '-latest',
-            '-property',
-            'installationPath'], capture_output=True, check=True
-        ).stdout.decode()
-    vs_dev_cmd = f'{vs_install_path.strip()}\\VC\\Auxiliary\\Build\\vcvars64.bat'
+            vs_install_path = subprocess.run([
+                f'{vs_installer_path}\\vswhere.exe',
+                '-latest',
+                '-property',
+                'installationPath'], capture_output=True, check=True
+            ).stdout.decode()
+        vs_dev_cmd = f'{vs_install_path.strip()}\\VC\\Auxiliary\\Build\\vcvars64.bat'
 
-    subprocess_call = [os.environ["ComSpec"], '/c', vs_dev_cmd, '>NUL', '&&', 'set']
-    stdout_text = subprocess.run(subprocess_call, check=True, capture_output=True).stdout.decode()
-    stdout_lines = stdout_text.split('\r\n')
-    env_mapping = {}
+        subprocess_call = [os.environ["ComSpec"], '/c', vs_dev_cmd, '>NUL', '&&', 'set']
+        stdout_text = subprocess.run(subprocess_call, check=True, capture_output=True).stdout.decode()
+        stdout_lines = stdout_text.split('\r\n')
+        env_mapping = {}
 
-    for stdout_line in stdout_lines:
-        equality_sign_loc = stdout_line.find('=')
-        if equality_sign_loc != -1:
-            key = stdout_line[:equality_sign_loc]
-            value = stdout_line[equality_sign_loc + 1:]
-            env_mapping[key] = value
+        for stdout_line in stdout_lines:
+            equality_sign_loc = stdout_line.find('=')
+            if equality_sign_loc != -1:
+                key = stdout_line[:equality_sign_loc]
+                value = stdout_line[equality_sign_loc + 1:]
+                env_mapping[key] = value
 
-    return env_mapping
+        return env_mapping
 
 
-@contextlib.contextmanager
-def vs_env(extra_env: dict = None, vs_install_path: str = None):
-    # if is_installed('ninja'):
-    #     raise 'Ninja is not installed'
+    @contextlib.contextmanager
+    def vs_env(extra_env: dict = None, vs_install_path: str = None):
+        # if is_installed('ninja'):
+        #     raise 'Ninja is not installed'
 
-    extracted_vs_env = extract_vs_env(vs_install_path)
+        extracted_vs_env = extract_vs_env(vs_install_path)
 
-    existing_environ = dict(os.environ)
-    os.environ.clear()
-    if extra_env:
-        os.environ.update(extra_env)
-    os.environ.update(extracted_vs_env)
-
-    try:
-        yield
-    finally:
+        existing_environ = dict(os.environ)
         os.environ.clear()
-        os.environ.update(existing_environ)
+        if extra_env:
+            os.environ.update(extra_env)
+        os.environ.update(extracted_vs_env)
+
+        try:
+            yield
+        finally:
+            os.environ.clear()
+            os.environ.update(existing_environ)
 
 
-@contextlib.contextmanager
-def vs_env_default():
-    with vs_env({'ROCM_DIR': get_rocm_path(), 'HIP_PLATFORM': 'amd'}, vs_install_path=os.getenv('VS_PATH')):
+    @contextlib.contextmanager
+    def vs_env_default():
+        with vs_env({'ROCM_DIR': get_rocm_path(), 'HIP_PLATFORM': 'amd'}, vs_install_path=os.getenv('VS_PATH')):
+            yield
+
+else:
+
+    @contextlib.contextmanager
+    def vs_env_default():
         yield
-
 
 def merge(*args, **kwargs):
     append = kwargs.get('append', [])
