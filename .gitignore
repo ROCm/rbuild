@@ -1,0 +1,5 @@
+.idea/
+.venv/
+build/
+rbuild.egg-info/
+__pycache__/

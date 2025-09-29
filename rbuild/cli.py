@@ -53,7 +53,7 @@ def delete_dir(path):
 
 def write_to(file, lines):
     content = list((line + "\n" for line in lines))
-    if (len(content) > 0):
+    if len(content) > 0:
         with open(file, 'w') as f:
             f.writelines(content)
 
@@ -190,6 +190,7 @@ class Builder:
             'deps': [],
             'rocm_path': get_rocm_path()
         }
+        self.config = flags.get('config', 'Release')
         session_options = get_session_options(session or 'default', defaults=default_options)
         self.options = merge(default_options, session_options, flags, append=['define', 'global_define'])
         self.explicit_define = flags.get('define', [])
@@ -231,7 +232,7 @@ class Builder:
         return os.path.exists(self.get_build_path('Makefile'))
 
     def make(self, target, build='.'):
-        args = ['--build', build, '--config', 'Release']
+        args = ['--build', build, '--config', self.config]
         if target != 'all':
             args = args + ['--target', target]
         if os.path.exists(os.path.join(build, 'Makefile')):
@@ -251,9 +252,7 @@ class Builder:
         if os.path.exists(self.get_hash_file()):
             if self.hash_matches(h):
                 return
-
-        cg = self.cget
-        cg('clean', '-y')
+        self.cget('clean', '-y')
         args = {}
         for option in ['cxx', 'cc', 'toolchain']:
             if option in self.options:
@@ -261,20 +260,21 @@ class Builder:
         defines = self.options['global_define']
         if init_with_define_flag:
             defines = list(defines) + list(self.explicit_define)
-        cg('init', *make_args(define=defines, **args))
+        self.cget('init', *make_args(define=defines, **args))
 
         for dep in self.get_ignore():
-            cg('ignore', dep)
+            self.cget('ignore', dep)
         for dep in self.get_deps():
             tokens = shlex.split(dep, comments=True)
-            cg('install', *tokens, cwd=self.get_source_dir())
+            self.cget('install', *tokens, '--build-type', self.config, cwd=self.get_source_dir())
         write_to(self.get_hash_file(), [h])
 
     def configure(self, clean=True):
         toolchain_file = os.path.join(self.get_prefix(), 'cget', 'cget.cmake')
         if clean: delete_dir(self.get_build_dir())
         mkdir(self.get_build_dir())
-        self.cmake('-DCMAKE_TOOLCHAIN_FILE='+toolchain_file, self.get_source_dir(), *make_defines(self.get_defines()), cwd=self.get_build_dir())
+        self.cmake(f'-DCMAKE_TOOLCHAIN_FILE={toolchain_file}', f'-DCMAKE_BUILD_TYPE={self.config}',
+                   self.get_source_dir(), *make_defines(self.get_defines()), cwd=self.get_build_dir())
 
     def build(self, target=None):
         self.make(target or None, build=self.get_build_dir())
@@ -290,12 +290,12 @@ def build_command(require_deps=True, no_build_dir=False):
         @click.option('--cc', required=False, help="Set c compiler")
         @click.option('-s', '--session', required=False, help="Pick the session to use")
         @click.option('-D', '--define', multiple=True, help="Extra cmake variables")
+        @click.option('-c', '--config', required=False, help="The build type")
         @functools.wraps(f)
-        def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, session, *args, **kwargs):
-            arg_session = session
-            def make_builder(session=None):
+        def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, session, config, *args, **kwargs):
+            def make_builder(arg_session=None):
                 s = arg_session or session or 'try:main'
-                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define)
+                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define, config=config)
             f(make_builder, *args, **kwargs)
         return w
     return wrap
