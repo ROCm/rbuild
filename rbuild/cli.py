@@ -40,13 +40,6 @@ def get_rocm_path():
     else:
         return '/opt/rocm'
 
-
-def get_llvm_path():
-    path = Path(get_rocm_path())
-    if platform.system() != 'Windows':
-        path /= 'llvm'
-    return str(path)
-
 if platform.system() == 'Windows':
 
     def extract_vs_env(vs_install_path: str = None) -> dict:
@@ -271,8 +264,12 @@ def get_session_options(session, file=None, defaults={}):
         fallback = True
         session = session[4:]
     if fallback and not parser.has_section(session):
-        if parser.has_section('main'):
-            return to_dict(parser.items('main'))
+        if platform.system() == 'Windows':
+            os_section = 'windows'
+        else:
+            os_section = 'main'
+        if parser.has_section(os_section):
+            return to_dict(parser.items(os_section))
         else:
             return to_dict(parser.items('default'))
     return to_dict(parser.items(session))
@@ -294,8 +291,7 @@ class Builder:
             'define': [],
             'ignore': [],
             'deps': [],
-            'rocm_path': get_rocm_path(),
-            'llvm_path': get_llvm_path()
+            'rocm_path': get_rocm_path()
         }
         self.config = flags.get('config', 'Release')
         session_options = get_session_options(session or 'default', defaults=default_options)
@@ -389,14 +385,14 @@ class Builder:
         compilers = []
         cxx = self.options.get('cxx')
         if cxx is not None:
-            if platform.system() == 'Windows':
+            if platform.system() == 'Windows' and not cxx.endswith('.exe'):
                 cxx = f'{cxx}.exe'
             if ' ' in cxx:
                 cxx = f'"{cxx}"'
             compilers.append(f'-DCMAKE_CXX_COMPILER={cxx}')
         cc = self.options.get('cc')
         if cc is not None:
-            if platform.system() == 'Windows':
+            if platform.system() == 'Windows' and not cc.endswith('.exe'):
                 cc = f'{cc}.exe'
             if ' ' in cc:
                 cc = f'"{cc}"'
@@ -428,7 +424,12 @@ def build_command(require_deps=True, no_build_dir=False):
         @functools.wraps(f)
         def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, session, config, *args, **kwargs):
             def make_builder(arg_session=None):
-                s = arg_session or session or 'try:main'
+                s = arg_session or session
+                if s is None:
+                    if platform.system() == 'Windows':
+                        s = 'try:windows'
+                    else:
+                        s = 'try;main'
                 return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir,
                                toolchain=toolchain, cxx=cxx, cc=cc, define=define, config=config)
 
