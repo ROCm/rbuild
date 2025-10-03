@@ -429,7 +429,7 @@ def build_command(require_deps=True, no_build_dir=False):
                     if platform.system() == 'Windows':
                         s = 'try:windows'
                     else:
-                        s = 'try;main'
+                        s = 'try:main'
                 return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir,
                                toolchain=toolchain, cxx=cxx, cc=cc, define=define, config=config)
 
