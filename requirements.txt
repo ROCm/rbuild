@@ -1,4 +1,4 @@
 cget @ git+https://github.com/apwojcik/cget@6c18ce9d5bb25c2f821acc6e688d4e23e784f0ed
-click==7.1.2
-configparser==4.0.2
+click>=7.1.2
+configparser>=4.0.2
 future
