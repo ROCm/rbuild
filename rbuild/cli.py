@@ -282,18 +282,25 @@ def sanitize_cmake_args(args):
 class Builder:
     def __init__(self, session, source_dir=None, **kwargs):
         flags = remove_empty_values(kwargs)
+        self.config = flags.get('config', 'Release')
+        _build_dir = Path(flags.get('build_dir', 'build')).absolute()
+        if _build_dir.parts[-1] != self.config:
+            _build_dir = _build_dir / self.config
+        _deps_dir = Path(flags.get('deps_dir', 'depend')).absolute()
+        if _deps_dir.parts[-1] != self.config:
+            _deps_dir = _deps_dir / self.config
+
         # Default options
         default_options = {
-            'deps_dir': str(Path(flags.get('deps_dir', 'deps')).absolute()),
+            'deps_dir': str(_deps_dir),
             'source_dir': source_dir or os.getcwd(),
-            'build_dir': str(Path(flags.get('build_dir', 'build')).absolute()),
+            'build_dir': str(_build_dir),
             'global_define': [],
             'define': [],
             'ignore': [],
             'deps': [],
             'rocm_path': get_rocm_path()
         }
-        self.config = flags.get('config', 'Release')
         session_options = get_session_options(session or 'default', defaults=default_options)
         self.options = merge(default_options, session_options, flags, append=['define', 'global_define'])
         self.explicit_define = flags.get('define', [])
@@ -410,9 +417,9 @@ class Builder:
         self.make(target or None, build=self.get_build_dir())
 
 
-def build_command(require_deps=True, no_build_dir=False):
+def build_command(no_build_dir=False):
     def wrap(f):
-        @click.option('-d', '--deps-dir', required=require_deps, help="Directory for the third-party dependencies")
+        @click.option('-d', '--deps-dir', required=False, help="Directory for the third-party dependencies")
         @click.option('-S', '--source-dir', required=False, help="Directory of the source code", default=os.getcwd())
         @click.option('-B', '--build-dir', required=False, help="Directory for the build", hidden=no_build_dir)
         @click.option('-t', '--toolchain', required=False, help="Set cmake toolchain file to use")
@@ -454,7 +461,7 @@ def prepare(builder):
 
 
 @cli.command()
-@build_command(no_build_dir=False, require_deps=False)
+@build_command(no_build_dir=False)
 def hash(builder):
     b = builder()
     click.echo(b.compute_hash())
@@ -481,7 +488,7 @@ def build(builder, target):
 
 
 @cli.command()
-@build_command(require_deps=False)
+@build_command()
 def develop(builder):
     b = builder(session='try:develop')
     b.prepare()
