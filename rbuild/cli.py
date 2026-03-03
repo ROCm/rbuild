@@ -284,10 +284,12 @@ class Builder:
         flags = remove_empty_values(kwargs)
         self.config = flags.get('config', 'Release')
         _build_dir = Path(flags.get('build_dir', 'build')).absolute()
-        if _build_dir.parts[-1] != self.config:
+        if (platform.system() == 'Windows' and
+                _build_dir.parts[-1] != self.config):
             _build_dir = _build_dir / self.config
         _deps_dir = Path(flags.get('deps_dir', 'depend')).absolute()
-        if _deps_dir.parts[-1] != self.config:
+        if (platform.system() == 'Windows' and
+                _deps_dir.parts[-1] != self.config):
             _deps_dir = _deps_dir / self.config
 
         # Default options
