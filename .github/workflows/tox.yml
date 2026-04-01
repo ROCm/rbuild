@@ -15,10 +15,10 @@ jobs:
     strategy:
       matrix:
         platform:
-          - ubuntu-20.04
-          - macos-12
-          - windows-2019
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9]
+          - ubuntu-24.04
+          - macos-15
+          - windows-2025
+        python-version: [2.7, 3.6, 3.7, 3.8, 3.9, 3.10, 3.12]
 
     steps:
     - uses: actions/checkout@v1
