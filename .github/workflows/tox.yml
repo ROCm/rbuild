@@ -12,45 +12,37 @@ jobs:
           access_token: ${{ github.token }}
   test:
     runs-on: ${{ matrix.platform }}
+    container: ${{ matrix.container || '' }}
     strategy:
       matrix:
         platform:
           - ubuntu-24.04
           - macos-15
           - windows-2025
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10', '3.12']
-        exclude:
-          - platform: ubuntu-24.04
-            python-version: '3.6'
-          - platform: ubuntu-24.04
-            python-version: '3.7'
-          - platform: macos-15
-            python-version: '3.6'
-          - platform: macos-15
-            python-version: '3.7'
-          - platform: windows-2025
-            python-version: '3.6'
-          - platform: windows-2025
-            python-version: '3.7'
+        python-version: ['3.8', '3.9', '3.10', '3.12']
         include:
-          - platform: ubuntu-20.04
+          - platform: ubuntu-24.04
             python-version: '3.6'
-          - platform: ubuntu-20.04
+            container: python:3.6-slim
+          - platform: ubuntu-24.04
             python-version: '3.7'
+            container: python:3.7-slim
 
     steps:
     - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
+      if: ${{ !matrix.container }}
       uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Setup msbuild
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+      continue-on-error: true
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.9
       with:
         cmake-version: 3.31.0
-    - name: Setup msbuild
-      uses: ilammy/msvc-dev-cmd@v1
-      continue-on-error: true
     - name: Install dependencies
       run: |
         python -m pip install --upgrade setuptools pip wheel
@@ -59,3 +51,4 @@ jobs:
       env:
         TOX_TESTENV_PASSENV: '*'
       run: tox -e py,lint
+
