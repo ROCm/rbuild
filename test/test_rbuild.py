@@ -264,6 +264,30 @@ cxx = ${rocm_path}/llvm/bin/clang++
 def test_hash_rocm_path(d):
     run_rb(d, ini=rocm_path_ini, args=['hash'])
 
+has_ninja = which('ninja') is not None
+
+@pytest.mark.skipif(not has_ninja, reason="ninja not found")
+def test_build_ninja(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('build', '-B', build, '-d', deps, '-G', 'Ninja', cwd=src)
+
+@pytest.mark.skipif(not has_ninja, reason="ninja not found")
+def test_package_ninja(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('package', '-B', build, '-d', deps, '-G', 'Ninja', cwd=src)
+
+@pytest.mark.skipif(not has_ninja, reason="ninja not found")
+def test_simple_build_ini_ninja(d):
+    run_rb(d, ini=simple_build_ini, args=['build', '-G', 'Ninja'])
+
+@pytest.mark.skipif(not has_ninja, reason="ninja not found")
+def test_simple_develop_ini_ninja(d):
+    run_rb(d, ini=simple_build_ini, args=['develop', '-G', 'Ninja'])
+
 if os.name == 'posix':
     simple_prepare_init_flag_ini = '''
     [main]

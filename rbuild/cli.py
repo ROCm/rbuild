@@ -216,6 +216,9 @@ class Builder:
     def get_deps(self):
         return self.options['deps']
 
+    def get_generator(self):
+        return self.options.get('generator', None)
+
     def get_hash_file(self):
         return os.path.join(self.get_prefix(), 'hash')
 
@@ -268,16 +271,18 @@ class Builder:
 
         for dep in self.get_ignore():
             cg('ignore', dep)
+        generator_args = ['-G', self.get_generator()] if self.get_generator() else []
         for dep in self.get_deps():
             tokens = shlex.split(dep, comments=True)
-            cg('install', *tokens, cwd=self.get_source_dir())
+            cg('install', *generator_args, *tokens, cwd=self.get_source_dir())
         write_to(self.get_hash_file(), [h])
 
     def configure(self, clean=True):
         toolchain_file = os.path.join(self.get_prefix(), 'cget', 'cget.cmake')
         if clean: delete_dir(self.get_build_dir())
         mkdir(self.get_build_dir())
-        self.cmake('-DCMAKE_TOOLCHAIN_FILE='+toolchain_file, self.get_source_dir(), *make_defines(self.get_defines()), cwd=self.get_build_dir())
+        generator_args = ['-G', self.get_generator()] if self.get_generator() else []
+        self.cmake(*generator_args, '-DCMAKE_TOOLCHAIN_FILE='+toolchain_file, self.get_source_dir(), *make_defines(self.get_defines()), cwd=self.get_build_dir())
 
     def build(self, target=None):
         self.make(target or None, build=self.get_build_dir())
@@ -293,12 +298,13 @@ def build_command(require_deps=True, no_build_dir=False):
         @click.option('--cc', required=False, help="Set c compiler")
         @click.option('-s', '--session', required=False, help="Pick the session to use")
         @click.option('-D', '--define', multiple=True, help="Extra cmake variables")
+        @click.option('-G', '--generator', required=False, help="Set the generator for CMake to use")
         @functools.wraps(f)
-        def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, session, *args, **kwargs):
+        def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, generator, session, *args, **kwargs):
             arg_session = session
             def make_builder(session=None):
                 s = arg_session or session or 'try:main'
-                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define)
+                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define, generator=generator)
             f(make_builder, *args, **kwargs)
         return w
     return wrap
