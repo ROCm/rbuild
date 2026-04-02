@@ -43,6 +43,11 @@ jobs:
       uses: jwlawson/actions-setup-cmake@v1.9
       with:
         cmake-version: 3.31.0
+    - name: Install build tools
+        if: ${{ matrix.container }}
+        run: |
+          apt-get update
+          apt-get install -y make gcc g++
     - name: Install dependencies
       run: |
         python -m pip install --upgrade setuptools pip wheel
