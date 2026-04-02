@@ -171,6 +171,9 @@ def sanitize_cmake_args(args):
     return [arg.replace(os.sep, '/') for arg in args]
 
 def get_rocm_path():
+    rocm_path = os.environ.get('ROCM_PATH')
+    if rocm_path:
+        return rocm_path
     paths = glob.glob('/opt/rocm-*')
     if len(paths) == 1:
         return paths[0]
