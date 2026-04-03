@@ -38,7 +38,6 @@ jobs:
     - name: Setup msbuild
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1
-      continue-on-error: true
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.9
       with:
