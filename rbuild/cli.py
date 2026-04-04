@@ -261,7 +261,7 @@ class Builder:
         cg = self.cget
         cg('clean', '-y')
         args = {}
-        for option in ['cxx', 'cc', 'toolchain']:
+        for option in ['cxx', 'cc', 'toolchain', 'std']:
             if option in self.options:
                 args[option] = self.options[option]
         defines = self.options['global_define']
@@ -299,12 +299,13 @@ def build_command(require_deps=True, no_build_dir=False):
         @click.option('-s', '--session', required=False, help="Pick the session to use")
         @click.option('-D', '--define', multiple=True, help="Extra cmake variables")
         @click.option('-G', '--generator', required=False, help="Set the generator for CMake to use")
+        @click.option('--std', required=False, help="Set C++ standard if available")
         @functools.wraps(f)
-        def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, generator, session, *args, **kwargs):
+        def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, generator, std, session, *args, **kwargs):
             arg_session = session
             def make_builder(session=None):
                 s = arg_session or session or 'try:main'
-                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define, generator=generator)
+                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define, generator=generator, std=std)
             f(make_builder, *args, **kwargs)
         return w
     return wrap
