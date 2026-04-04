@@ -289,6 +289,29 @@ def test_simple_build_ini_ninja(d):
 def test_simple_develop_ini_ninja(d):
     run_rb(d, ini=simple_build_ini, args=['develop', '-G', 'Ninja'])
 
+def test_build_std(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('build', '-B', build, '-d', deps, '--std', 'c++14', cwd=src)
+
+def test_package_std(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('simple')
+    rb('package', '-B', build, '-d', deps, '--std', 'c++14', cwd=src)
+
+simple_std_ini = '''
+[main]
+std = c++14
+deps = -f requirements.txt
+'''
+def test_simple_std_ini(d):
+    run_rb(d, ini=simple_std_ini, args=['build'])
+
+def test_simple_std_ini2(d):
+    run_rb(d, ini=simple_std_ini, args=['develop'])
+
 if os.name == 'posix':
     simple_prepare_init_flag_ini = '''
     [main]
