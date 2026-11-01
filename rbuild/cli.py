@@ -85,6 +85,13 @@ def make_args(**kwargs):
 def make_defines(defines):
     return ['-D'+x for x in defines]
 
+def to_env_dict(xs):
+    result = {}
+    for x in xs:
+        key, _, value = x.partition('=')
+        result[key] = value
+    return result
+
 def read_reqs(lines, path=None, ignore=None):
     start = os.path.dirname(path) if path else None
     for line in lines:
@@ -149,7 +156,7 @@ def to_dict(items):
     r = {}
     for key, value in items:
         v = value
-        if key in ['global_define', 'define', 'ignore', 'deps']:
+        if key in ['global_define', 'define', 'env', 'ignore', 'deps']:
             v = list(parse_lines(value))
         r[key] = v
     return r
@@ -189,12 +196,13 @@ class Builder:
             'build_dir': abspath(flags.get('build_dir', os.path.join(os.getcwd(), 'build'))),
             'global_define': [],
             'define': [],
+            'env': [],
             'ignore': [],
             'deps': [],
             'rocm_path': get_rocm_path()
         }
         session_options = get_session_options(session or 'default', defaults=default_options)
-        self.options = merge(default_options, session_options, flags, append=['define', 'global_define'])
+        self.options = merge(default_options, session_options, flags, append=['define', 'global_define', 'env'])
         self.explicit_define = flags.get('define', [])
 
 
@@ -219,19 +227,24 @@ class Builder:
     def get_generator(self):
         return self.options.get('generator', None)
 
+    def get_env(self):
+        return to_env_dict(self.options['env'])
+
     def get_hash_file(self):
         return os.path.join(self.get_prefix(), 'hash')
 
     # TODO: Add command tracing
-    def cmd(self, c, **kwargs):
+    def cmd(self, c, env=None, **kwargs):
         click.echo(' '.join(c))
+        if env:
+            kwargs['env'] = merge(os.environ, env)
         subprocess.check_call(c, **kwargs)
 
     def cget(self, *args, **kwargs):
         self.cmd(['cget', '-p', self.get_prefix()] + list(args), **kwargs)
 
     def cmake(self, *args, **kwargs):
-        self.cmd(['cmake'] + sanitize_cmake_args(list(args)), **kwargs)
+        self.cmd(['cmake'] + sanitize_cmake_args(list(args)), env=self.get_env(), **kwargs)
 
     def is_make_generator(self):
         return os.path.exists(self.get_build_path('Makefile'))
@@ -267,7 +280,7 @@ class Builder:
         defines = self.options['global_define']
         if init_with_define_flag:
             defines = list(defines) + list(self.explicit_define)
-        cg('init', *make_args(define=defines, **args))
+        cg('init', *make_args(define=defines, env=self.options['env'], **args))
 
         for dep in self.get_ignore():
             cg('ignore', dep)
@@ -300,12 +313,13 @@ def build_command(require_deps=True, no_build_dir=False):
         @click.option('-D', '--define', multiple=True, help="Extra cmake variables")
         @click.option('-G', '--generator', required=False, help="Set the generator for CMake to use")
         @click.option('--std', required=False, help="Set C++ standard if available")
+        @click.option('--env', multiple=True, help="Environment variables to set when building the dependencies and the project")
         @functools.wraps(f)
-        def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, generator, std, session, *args, **kwargs):
+        def w(deps_dir, source_dir, build_dir, toolchain, cxx, cc, define, generator, std, env, session, *args, **kwargs):
             arg_session = session
             def make_builder(session=None):
                 s = arg_session or session or 'try:main'
-                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define, generator=generator, std=std)
+                return Builder(session=s, deps_dir=deps_dir, source_dir=source_dir, build_dir=build_dir, toolchain=toolchain, cxx=cxx, cc=cc, define=define, generator=generator, std=std, env=env)
             f(make_builder, *args, **kwargs)
         return w
     return wrap

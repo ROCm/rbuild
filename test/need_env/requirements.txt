@@ -1,0 +1,3 @@
+# Name it differently so it will still install
+rocm-cmake,https://github.com/RadeonOpenCompute/rocm-cmake/archive/master.tar.gz
+
