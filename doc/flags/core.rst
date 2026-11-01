@@ -18,3 +18,7 @@ Set c++ compiler
 
 Set c compiler
 
+.. option::  --env <VAR=VALUE>
+
+Environment variables to set when building the dependencies and the project. They are not set when the dependencies are downloaded.
+
