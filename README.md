@@ -58,23 +58,6 @@ If the component is compiling for the GPU, the compiler can be set to hcc with t
 rbuild develop -d $deps_dir -B $build_dir --cxx=/opt/rocm/bin/hcc
 ```
 
-## Environment variables
-
-Environment variables for the build can be set with the `--env` flag. They are set when the dependencies and the component are built, but not when the dependencies are downloaded, so a dead proxy can be used to check that the builds do not reach the network:
-
-```
-rbuild build -d $deps_dir --env https_proxy=http://127.0.0.1:1 --env http_proxy=http://127.0.0.1:1
-```
-
-They can also be set in the `rbuild.ini`:
-
-```
-[main]
-env =
-    https_proxy=http://127.0.0.1:1
-    http_proxy=http://127.0.0.1:1
-```
-
 ## Prepare
 
 The prepare command only installs dependencies for a component. It can be used like this:
