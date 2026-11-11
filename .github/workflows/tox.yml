@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.6.0
+        uses: styfle/cancel-workflow-action@0.13.1
         with:
           access_token: ${{ github.token }}
   test:
@@ -31,17 +31,17 @@ jobs:
             python-version: '3.12'
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ !matrix.container }}
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Setup msbuild
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.9
+      uses: jwlawson/actions-setup-cmake@v2.2
       with:
         cmake-version: 3.31.0
     - name: Install build tools
