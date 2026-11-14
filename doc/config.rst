@@ -52,6 +52,10 @@ Set the c++ compiler to be used.
 
 Set the cmake toolchain file to be used.
 
+.. envvar:: env
+
+Environment variables to set when building the dependencies and the project, one ``VAR=VALUE`` per line. They are not set when the dependencies are downloaded.
+
 Variables
 ---------
 

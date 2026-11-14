@@ -301,6 +301,27 @@ def test_package_std(d):
     src = get_path('simple')
     rb('package', '-B', build, '-d', deps, '--std', 'c++14', cwd=src)
 
+def test_build_env(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('need_env')
+    rb('build', '-B', build, '-d', deps, '--env', 'SPECIAL_ENV=1', cwd=src)
+
+@pytest.mark.xfail(strict=True)
+def test_build_env_fail(d):
+    deps = d.get_path('deps')
+    build = d.get_path('build')
+    src = get_path('need_env')
+    rb('build', '-B', build, '-d', deps, cwd=src)
+
+simple_env_ini = '''
+[main]
+env = SPECIAL_ENV=1
+deps = -f requirements.txt
+'''
+def test_simple_env_ini(d):
+    run_rb(d, ini=simple_env_ini, src='need_env', args=['build'])
+
 simple_std_ini = '''
 [main]
 std = c++14
@@ -324,3 +345,15 @@ if os.name == 'posix':
     '''.format(get_path('need_flag'))
     def test_simple_prepare_init_flag_ini(d):
         run_rb(d, ini=simple_prepare_init_flag_ini, args=['prepare'], requirements=simple_prepare_init_flag_reqs)
+
+    simple_prepare_env_ini = '''
+    [main]
+    env = SPECIAL_ENV=1
+    deps = -f requirements.txt
+    '''
+    simple_prepare_env_reqs = '''
+    rocm-cmake,https://github.com/RadeonOpenCompute/rocm-cmake/archive/master.tar.gz
+    {}
+    '''.format(get_path('need_env'))
+    def test_simple_prepare_env_ini(d):
+        run_rb(d, ini=simple_prepare_env_ini, args=['prepare'], requirements=simple_prepare_env_reqs)
